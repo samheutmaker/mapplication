@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" type="text/css" href="styles/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css" />
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+
+    <title>Tag Locator</title>
+</head>
+
+
+<body>
+
+    <div data-role="page" id="splash-page">
+        WHERE
+        <br /> ARE
+        <br /> YOU?
+
+    </div>
+    <div class="header"></div>
+    <div data-role="page" id="mainapp-page">
+
+
+        <div id="tag-search-bar">
+            <div id="search-container">
+                <input class="enjoy-css" id="tag-search-input" placeholder="Create Your Own ID" />
+            </div>
+            <button id="tag-enter-button" title="Add Tag to Your Tags"> Enter </button>
+            <button id="tag-search-button" title="Search for Tag"> Search </button>
+
+            <div id="switch-button" title="Switch between posting tags and searching for tags"></div>
+            <div id="generate-random-button" title="Generate a random identifier">R</div>
+
+            <div id="warnings">
+                <ul>
+                    <li>All spaces will be removed </li>
+                    <li>Tags are case sensitive</li>
+                </ul>
+            </div>
+            <div id="directions-button">
+                <u>Directions</u>
+            </div>
+            <div id="directions">
+                <p> Read All: </p>
+
+                <p>
+                    <ol>
+                        <li>Enter a tag that others users will be able to locate you with. This will serve as your identifier. </li>
+                        <li>Generate a random identifier by clicking the 'R' icon.
+                            <li>Search for the location of other users by entering their identifier into the search box. </li>
+                            <li>Switch between adding your own identifiers and locating other users with the 'switch' icon. </li>
+                            <li>Delete identifiers by clicking on them. </li>
+                            <li>Your own identifiers are located on the right side of the screen, and the ones you are currently searching for on the left. </li>
+                    </ol>
+                </p>
+            </div>
+        </div>
+
+        <div id="tag-record" title="Tags you are currently searching for">
+            <u>Currently Searching:</u>
+            <br />
+            <span id="tag-record-span"> </span>
+        </div>
+
+        <div id="user-record" title="Tags you can currently be found with">
+
+            <u>Your Tags:</u>
+            <br />
+            <span id="user-record-span">
+                
+             </span>
+        </div>
+
+        <div id="map">
+
+        </div>
+
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="js/jquery/jquery.color.js"></script>
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcTYFnC1x3LP4zIepsjvCcmVZSnK5CwAE"></script>
+
+    <script type="text/javascript" src="js/markerwithlabel.js"></script>
+
+
+</html>
+
+
+
+<script>
+    //global variables
+
+    //an array that holds user objects
+    var userIdArray = [];
+
+    //an array that holds searched for objects
+    var searchIdArray = [];
+
+    //call build function when window is resized
+    $(window).resize(function() {
+        Build();
+    });
+
+    //on document ready
+    $(document).ready(function() {
+
+        //check for gelocation
+        if ("geolocation" in navigator) {
+
+
+            //center location succes callback
+            var onSuccess = function(position) {
+                //set lat
+                $centerLatitude = position.coords.latitude;
+                //set long
+                $centerLongitude = position.coords.longitude;
+                //intialize Google Maps API V3
+                initialize();
+
+            };
+
+            //center location failure callback
+            function onError(error) {
+                alert('code: ' + error.code + '\n' +
+                    'message: ' + error.message + '\n');
+
+            };
+
+
+
+            function locationEnabled() {
+
+                //navigate to main app page
+                $.mobile.changePage("#mainapp-page", {
+                    transition: "fade",
+                    changeHash: false
+                });
+
+                //call geolocation after 1 second
+                setTimeout(function() {
+
+                    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+                        enableHighAccuracy: true
+                    });
+
+                }, 1000);
+                //load search bar
+                requireTag();
+            };
+
+
+            /////////////// GOOGLE MAPS /////////////////
+            function initialize() {
+
+
+                //set center latitude and longitude as current position
+                var centerLatlng = new google.maps.LatLng($centerLatitude, $centerLongitude);
+
+                //create map
+                var mapCanvas = document.getElementById('map');
+
+                //set map options
+                var mapOptions = {
+                    center: centerLatlng,
+                    zoom: 15,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    disableDefaultUI: true
+                }
+
+                //draw map on screen
+                var map = new google.maps.Map(mapCanvas, mapOptions)
+
+
+
+
+                ///////////// USER LOCATION /////////////  
+
+                //user class
+                var userIdentifier = function(GMCoordinates, tagText, marker) {
+                    //the coordinates of the user
+                    this.GMCoordinates = GMCoordinates;
+                    //the text of the identifier
+                    this.tagText = tagText;
+                    //marker object
+                    this.marker = marker;
+                    //the index of this marker
+                    this.idIndex = 1;
+                    //the html that will be appended to the users tag record
+                    this.domRecord = '<div class="user-record-text" id="' + this.idIndex + '" title="Click tag to remove as identifier">' + this.tagText + "</div>";
+                    //function to set the index
+                    this.setIdIndex = function(newIndex) {
+                        this.idIndex = newIndex;
+                    };
+                    //function to update the html that will be appended
+                    this.updateDomRecord = function() {
+                        this.domRecord = '<div class="user-record-text" id="' + this.idIndex + '" title="Click tag to remove as identifier">' + this.tagText + "</div>";
+                    }
+
+                }
+
+
+                //keeps track of whether the user has entered his first tag or not
+                var firstSearch = true;
+                //user location options for location services
+                var UserLocationOptions = {
+                    maximumAge: 900000,
+                    timeout: Infinity,
+                    enableHighAccuracy: true
+                };
+
+
+
+                //drop user pin on tag-enter-button click 
+                $("#tag-enter-button").css("cursor", "pointer").click(function() {
+                        //close directions if open
+                        if (directionsHow == 1) {
+                            closeDirections();
+                        }
+                        //geolocation success callback - puts tag into array, maps tag, uploads tag info
+                        function postTagLocation(position) {
+
+                            //get value from input 
+                            var inputValue = document.getElementById('tag-search-input').value;
+                            //remove spaces from input value
+                            inputValue = inputValue.replace(/\s+/g, '');
+                            //make sure input is not empty
+                            if (inputValue.length > 0) {
+                                //get current latitude
+                                var tagLatitude = position.coords.latitude;
+                                //get current longitude
+                                var tagLongitude = position.coords.longitude;
+                                //create new google maps location object
+                                var tagLocation = new google.maps.LatLng(tagLatitude, tagLongitude);
+                                //store marker object in variable
+                                var userMarkerWithLabel = new MarkerWithLabel({
+                                    position: tagLocation,
+                                    draggable: false,
+                                    raiseOnDrag: false,
+                                    map: map,
+                                    labelContent: inputValue,
+                                    labelAnchor: new google.maps.Point(35, 0),
+                                    labelClass: "userLabel",
+                                    labelStyle: {
+                                        opacity: 0.9
+                                    }
+                                });
+                                //create new user identifier object
+                                userIdArray[userIdArray.length] = new userIdentifier(tagLocation, inputValue, userMarkerWithLabel);
+
+
+                                //create object for POST
+                                var tagData = {
+                                    "tagLatitude": tagLatitude,
+                                    "tagLongitude": tagLongitude,
+                                    "tagID": userIdArray[userIdArray.length - 1].tagText
+                                };
+                                //post object to store user location
+                                $.ajax({
+                                    type: "POST",
+                                    url: "php/postTagLocation.php",
+                                    data: tagData,
+                                    success: function(data) {
+                                        //update user record
+                                        updateUserRecord();
+                                        //if this was the users first search
+                                        if (firstSearch) {
+                                            //call load search bar function to change DOM
+                                            loadSearchBar();
+                                            //change firstsearch to false
+                                            firstSearch = false;
+                                        } else {
+                                            //reset the input box
+                                            $('#tag-search-input').attr("value", "");
+                                        }
+                                    },
+                                    error: function(xhr, ajaxOptions, thrownError) {}
+                                });
+                            } else {
+                                //in case user enters only spaces, set back to blank value
+                                $('#tag-search-input').attr("value", "");
+                            }
+
+
+                        } //end of success function
+
+                        //geolocation failure callback - log error info to console
+                        function postTagLocationError(err) {
+                            console.warn('ERROR(' + err.code + '): ' + err.message);
+                        }
+
+                        // get current position from geolocation - call postTagLocation
+                        navigator.geolocation.getCurrentPosition(postTagLocation, postTagLocationError, UserLocationOptions);
+
+
+                    }) //end of #tag-enter-button click
+
+
+                //manipulates DOM to create main screen
+                function loadSearchBar() {
+                    $("#switch-button").css("display", "block");
+                    $("#tag-search-bar").css("display", "none");
+                    $("#tag-search-bar").css("top", "-100px");
+                    $('#tag-search-input').attr("value", "");
+                    $('#tag-search-input').attr("placeholder", "Search for Other Users");
+                    $('#tag-enter-button').css("display", "none");
+                    $('#tag-search-button').css("display", "block");
+                    $('#tag-search-bar').css("display", "block");
+                    $('#generate-random-button').fadeOut(100);
+                    $("#tag-search-bar").animate({
+                        top: "0px"
+                    }, 300);
+
+
+                    $("#tag-record").animate({
+                        left: "0px"
+                    }, 300);
+                    $("#user-record").animate({
+                        right: "0px"
+                    }, 300);
+
+
+                }
+
+                //watchPostion success callback - update tag information
+                function updateLocation(position) {
+                    //get updated latitude
+                    var tagLatitude = position.coords.latitude;
+                    //get updated longitude
+                    var tagLongitude = position.coords.longitude;
+                    //create updated mapable location
+                    var tagLocation = new google.maps.LatLng(tagLatitude, tagLongitude);
+
+                    //loop through userTagMarkers and update coordinates of each tag
+                    for (i = 0; i < userIdArray.length; i++) {
+                        if (userIdArray[i]) {
+                            //create object to update user location
+                            var tagData = {
+                                "tagLatitude": tagLatitude,
+                                "tagLongitude": tagLongitude,
+                                "tagID": userIdArray[i].tagText,
+                            };
+                            //if this marker exists
+                            if (userIdArray[i]) {
+                                //move marker to new location
+                                userIdArray[i].marker.setPosition(tagLocation);
+                                //set new coordinates
+                                userIdArray[i].GMCoordinates = tagLocation;
+                                //update user position
+                                $.ajax({
+                                    type: "POST",
+                                    url: "php/postTagLocation.php",
+                                    data: tagData,
+                                    success: function() {
+                                        //console.log("ajax success");
+                                    },
+                                    error: function() {
+                                        //console.log("ajax error")
+                                    }
+                                }); //end of ajax
+                            }
+                        }
+                    } //end of for loop
+                } //end of updateLocation
+
+                //watchPosition failure callback - log error to console
+                function updateLocationError(err) {
+                    console.warn('ERROR(' + err.code + '): ' + err.message);
+                }
+
+                //update tag location information when user moves
+                navigator.geolocation.watchPosition(updateLocation, updateLocationError, UserLocationOptions);
+
+
+                ///////////// GET FRIENDS LOCATION //////////////
+
+                //searched tag class
+                var searchIdentifier = function(tagText) {
+                    //the text of the tag
+                    this.tagText = tagText;
+                    //the tag marker
+                    this.marker = null;
+                    //the index of the tag
+                    this.idIndex = 1;
+                    //whether the tag is currently mapped
+                    this.mapped = false;
+                    //the html that will appended the search record
+                    this.domRecord = '<div class="tag-record-text" id="' + this.idIndex + '" title="Click tag to remove from map">' + this.tagText + "</div>";
+                    //function to set the index of this tag
+                    this.setIdIndex = function(newIndex) {
+                        this.idIndex = newIndex;
+                    };
+                    //function to udpate the html of this tag
+                    this.updateDomRecord = function() {
+                        this.domRecord = '<div class="tag-record-text" id="' + this.idIndex + '" title="Click tag to remove from map">' + this.tagText + "</div>";
+                    };
+                    //function to set the marker of this tag
+                    this.setMarker = function(newMarker) {
+                        this.marker = newMarker;
+                    }
+
+                };
+
+
+                //search button is clicked
+                $("#tag-search-button").css("cursor", "pointer").click(function() {
+
+                    //get text from input box and store in var
+                    var searchValue = $("#tag-search-input").val();
+                    //clean string
+                    searchValue = searchValue.replace(/\s+/g, '');
+                    //check length of cleaned string
+                    if (searchValue.length > 0) {
+                        //call addTag if length is greater than zero
+                        addTag(searchValue);
+                    }
+                    //otherwise reset value of search box 
+                    else {
+                        //reset input
+                        $('#tag-search-input').attr("value", "");
+                    }
+                    //close directions if they are open
+                    if (directionsHow == 1) {
+                        closeDirections();
+                    }
+                });
+
+                //clears input, updates record, adds new tag text to array, creates and stores new tag is array
+                function addTag(stringToAdd) {
+
+                    //clears search input
+                    $('#tag-search-input').attr("value", "");
+                    //add string to first open spot in array
+                    searchIdArray[searchIdArray.length] = new searchIdentifier(stringToAdd);
+                    //update search record
+                    updateSearchRecord();
+
+                }
+
+
+                //requests tag information from server and maps the returned content
+                function searchTag($currentTag, i) {
+                    //store fed variable
+                    var tagSearch = $currentTag;
+                    //create object for post
+                    var searchData = {
+                        "tagSearch": tagSearch
+                    };
+                    //search for tag
+                    $.ajax({
+                        type: "POST",
+                        url: "php/getTagLocation.php",
+                        data: searchData,
+                        success: function(data, textStatus, jqXHR) {
+                            //if response if not empty
+                            if (jqXHR.responseText.length > 2) {
+                                //create userLocation Variable
+                                var userLocation = 0;
+                                //store returned content in an array
+                                coordsArray = jqXHR.responseText.split(",");
+                                //create new google location object
+                                userLocation = new google.maps.LatLng(coordsArray[0], coordsArray[1]);
+
+                                // Marker exists
+                                if (searchIdArray[i].marker != null) {
+                                    //marker is already mapped
+                                    if (searchIdArray[i].mapped) {
+                                        //set new marker position
+                                        searchIdArray[i].marker.setPosition(userLocation);
+                                    } else {
+                                        //set marker map
+                                        searchIdArray[i].marker.setMap(map);
+                                        //set mapped variable to true
+                                        searchIdArray[i].mapped = true;
+                                        //set position of marker
+                                        searchIdArray[i].marker.setPosition(userLocation);
+
+                                    }
+                                }
+                                // Marker does not exist - Create it
+                                else {
+                                    searchIdArray[i].mapped = true;
+                                    searchIdArray[i].marker = new MarkerWithLabel({
+                                        position: userLocation,
+                                        draggable: false,
+                                        raiseOnDrag: false,
+                                        map: map,
+                                        labelContent: $currentTag,
+                                        labelAnchor: new google.maps.Point(35, 0),
+                                        labelClass: "labels", // the CSS class for the label
+                                        labelStyle: {
+                                            opacity: 0.8
+                                        }
+                                    });
+                                }
+
+
+                            }
+                            //if response is not long enough
+                            else {
+                                //if label has been created
+                                if (searchIdArray[i]) {
+                                    if (searchIdArray[i].mapped) {
+                                        //delete label from map
+                                        searchIdArray[i].marker.setMap(null);
+                                        //set mapped variable to false
+                                        searchIdArray[i].mapped = false;
+                                    }
+                                }
+                            }
+
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {}
+                    });
+
+
+                }
+
+                //update map with friends locations every second
+                var updateID = window.setInterval(function() {
+                    //loop through each value of tag text array and request location
+                    for (var i = 0; i < searchIdArray.length; i++) {
+                        //feed array to searchTag function to update map
+                        if (searchIdArray[i]) {
+                            searchTag(searchIdArray[i].tagText, i);
+                        }
+                    }
+                    //1 second intervals
+                }, 1000);
+
+
+            } //end of initialze
+
+            // location is enabled
+            locationEnabled();
+
+        } //end of geolocation if statement
+        //no gelocation
+        else {
+            alert("Please Turn On Location Services");
+            $.mobile.changePage("#spash-page", {
+                transition: "fade",
+                changeHash: false
+            });
+        }
+
+    });
+
+    //////////////////////////////DOM manipulation functions/////////
+
+    //keeps track of what whether the user is searching for tags or enter their own
+    var switchHow = 0;
+    //keeps track of whether the directions are open
+    var directionsHow = 1;
+
+    //function to close directions
+    function closeDirections() {
+        $("#tag-search-bar").animate({
+            height: "110px"
+        }, 150);
+        $("#directions").fadeOut(150);
+        directionsHow = 0;
+    }
+
+    //reveal search box
+    function requireTag() {
+        $("#tag-search-bar").delay(3000).fadeIn(600);
+    }
+
+    //switch to searching for other peoples tags
+    function searchForTags() {
+        $("#tag-search-input").attr("value", "");
+        $("#tag-search-input").attr("placeholder", "Search for Other Users");
+        $("#tag-enter-button").css("display", "none");
+        $('#tag-search-button').css("display", "block");
+        $("#generate-random-button").fadeOut(100);
+
+
+    }
+    //add more tags that identify the user
+    function addUserTags() {
+        $("#tag-search-input").attr("value", "");
+        $("#tag-search-input").attr("placeholder", "Add Your Own Identifier");
+        $("#tag-enter-button").css("display", "block");
+        $('#tag-search-button').css("display", "none");
+        $('#generate-random-button').fadeIn(100);
+
+    }
+
+    //update user record
+    function updateUserRecord() {
+        //empty current record
+        $("#user-record-span").empty();
+        //loop through and update each objects index
+        for (i = 0; i < userIdArray.length; i++) {
+            if (userIdArray[i]) {
+                userIdArray[i].setIdIndex(i);
+                userIdArray[i].updateDomRecord();
+                $("#user-record-span").append(userIdArray[i].domRecord);
+                //update event listeners
+                Build();
+            }
+        }
+
+    }
+    //update search record function
+    function updateSearchRecord() {
+        //clear record
+        $('#tag-record-span').empty();
+        //fill record with updated array
+        for (i = 0; i < searchIdArray.length; i++) {
+            if (searchIdArray[i]) {
+                searchIdArray[i].setIdIndex(i);
+                searchIdArray[i].updateDomRecord();
+                $("#tag-record-span").append(searchIdArray[i].domRecord);
+                //update event listeners
+                Build();
+
+            }
+        }
+
+    };
+
+    //switch button clicked
+    $("#switch-button").css("cursor", "pointer").click(function() {
+        if (switchHow == 0) {
+            //change to adding your own tags
+            addUserTags();
+            //track switch button click
+            switchHow = 1;
+        } else if (switchHow == 1) {
+            //change to searching for tags
+            searchForTags();
+            //track switch button click
+            switchHow = 0;
+        }
+
+    });
+
+
+    //directions button clicked
+    $("#directions-button").css("cursor", "pointer").click(function() {
+        if (directionsHow == 0) {
+            //open directions
+            $("#tag-search-bar").animate({
+                height: "420px"
+            }, 300);
+            $("#directions").fadeIn(300);
+            directionsHow = 1;
+        } else if (directionsHow == 1) {
+            //close directions
+            closeDirections();
+        }
+    });
+
+    //generate random identifier button clicked
+    $("#generate-random-button").css("cursor", "pointer").click(function() {
+        var randomIdFunction = function() {
+            var possible = "abcdefghijklmnopqrstuvwxyz0123456789!@#$*";
+            var random = "";
+
+            for (var i = 0; i < 10; i++) {
+                random += possible.charAt(Math.floor(Math.random() * possible.length));
+            }
+            return random;
+        }
+
+        $("#tag-search-input").attr("value", randomIdFunction());
+
+
+
+    });
+
+
+
+    //////////////////////CSS/////////////////////
+
+    $width = $(document).innerWidth();
+    $height = $(document).innerHeight();
+
+    //center search box vertically and horitzonally when page first loads
+    //create variables that hold exact centering space
+    $searchBarCenterH = ($width - 600) / 2;
+    $searchBarCenterV = ($height - 300) / 2;
+    //apply variable to search bar css
+    $("#tag-search-bar").css("left", $searchBarCenterH);
+    $("#tag-search-bar").css("top", $searchBarCenterV);
+
+
+
+    // function to update event listeners and DOM - called periodically to make sure DOM is correct
+    function Build() {
+
+        $width = $(document).innerWidth();
+        $height = $(document).innerHeight();
+
+        //center search box on build
+        //create variables that hold exact centering space
+        $searchBarCenterH = ($width - 600) / 2;
+        //apply variable to search bar css
+        $("#tag-search-bar").css("left", $searchBarCenterH);
+        //user record update
+        $(".user-record-text").css("height", "22px");
+        $(".user-record-text").css("width", "150px");
+        $(".user-record-text").css("cursor", "crosshair").hover(
+                function() {
+                    $(this).stop().animate({
+                        backgroundColor: "white",
+                        color: "red"
+                    }, 200);
+
+                },
+                function() {
+                    $(this).stop().animate({
+                        backgroundColor: "black",
+                        color: "white"
+                    }, 200);
+
+                }
+            )
+            //tag record update
+        $(".tag-record-text").css("height", "22px");
+        $(".tag-record-text").css("width", "150px");
+        $(".tag-record-text").css("cursor", "crosshair").hover(
+            function() {
+                $(this).stop().animate({
+                    backgroundColor: "white",
+                    color: "red"
+                }, 200);
+
+            },
+            function() {
+                $(this).stop().animate({
+                    backgroundColor: "black",
+                    color: "white"
+                }, 200);
+
+            }
+        )
+
+        //delete tag from map by updating array
+        $(".tag-record-text").click(function() {
+            //get index of clicked tag
+            var indexId = this.id;
+
+            //if this index exists
+            if (searchIdArray[indexId]) {
+                //and this tag is mapped
+                if (searchIdArray[indexId].mapped) {
+                    //delete tag from map
+                    searchIdArray[indexId].marker.setMap(null);
+                    //track deletion of tag from map
+                    searchIdArray[indexId].mapped = false;
+                }
+            }
+            //set array value to null
+            delete searchIdArray[indexId];
+            //update DOM
+            updateSearchRecord();
+
+
+
+        });
+
+
+        //delete user coordinates from server and update user identifier array
+        $(".user-record-text").click(function() {
+            //get index of clicked tag
+            var indexId = this.id;
+            //get text of clicked tag
+            var tag = $(this).text();
+            //if tag exists
+            if (userIdArray[indexId]) {
+                //delete from map
+                userIdArray[indexId].marker.setMap(null);
+                //set array value to null
+                delete userIdArray[indexId];
+                //update DOM
+                updateUserRecord();
+            }
+
+            //store tag in object
+            deleteData = {
+                "deleteTag": tag
+            };
+
+            //delete user coordinates from server
+            $.ajax({
+                type: "POST",
+                data: deleteData,
+                url: "php/removeTag.php",
+                success: function() {
+
+                },
+                error: function(err) {
+                    //console.log("error deleting tag");
+                }
+            });
+        })
+
+
+    };
+</script>
