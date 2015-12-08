@@ -1,0 +1,22 @@
+<a href="/">Home</a>
+<a href="/login">Login</a><br/>
+
+
+<div class="register-page">
+	<form class="register-form" >
+        <div class="">
+            <label>Username</label>
+            <input type="username" ng-required="true" ng-model="registerInfo.username" class="input" name="username">
+        </div>
+        <div class="">
+            <label>Password</label>
+            <input type="password" ng-required="true" ng-model="registerInfo.password" class="input" name="password">
+        </div>
+        <div class="">
+            <label>Password, Again</label>
+            <input type="password" ng-required="true" ng-model="registerInfo.passwordCheck" class="input" name="passwordCheck">
+        </div>
+
+        <div class="button button-green" ng-click="register()">Register</div>
+    </form>
+</div>

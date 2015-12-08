@@ -11,7 +11,8 @@ grunt.registerTask('default', ['browserSync', 'watch']);
     bsFiles: {
       src: [
         "www/styles/css/main.css",
-        "*.html"
+        "www/styles/css/control.css",
+        "www/templates/*.html"
       ]
     },
     options: {
@@ -35,7 +36,8 @@ grunt.registerTask('default', ['browserSync', 'watch']);
         dev: {
             files: {
                 // destination         // source file
-                "www/styles/css/main.css" : "www/styles/sass/main.scss"
+                "www/styles/css/main.css" : "www/styles/sass/main.scss",
+                "www/styles/css/control.css" : "www/styles/sass/control.scss"
             }
         }
     }

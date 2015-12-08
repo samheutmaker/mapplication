@@ -1,23 +1,13 @@
 // app/routes.js
 
- var geocoderProvider = 'google';
-  var httpAdapter = 'https';
-  var geocoderOptions = {
-    };
-
 // grab the nerd model we just created
 var Event = require('./models/events');
 var Users = require('./models/user');
-var geocoder = require('node-geocoder')(geocoderProvider, httpAdapter, geocoderOptions);
 
 // app/routes.js
 module.exports = function(app, passport) {
 
    
-
-
-
-
 
     // =====================================
     // EVENTS ==============================

@@ -21,7 +21,7 @@ textarea, select, input[type="date"], input[type="datetime"], input[type="dateti
   height: 1em;
   vertical-align: middle; }
 
-.input, .login-page .login-form input[type="text"], .login-page .login-form input[type="password"], .login-page .login-form input[type="email"], .register-page .register-form input[type="text"], .register-page .register-form input[type="password"], .register-page .register-form input[type="email"] {
+.input {
   width: 250px;
   background-color: transparent;
   border: 0px;
@@ -52,4 +52,4 @@ textarea, select, input[type="date"], input[type="datetime"], input[type="dateti
   .button-green:active {
     background-color: #004d00 !important; }
 
-/*# sourceMappingURL=main.css.map */
+/*# sourceMappingURL=control.css.map */
