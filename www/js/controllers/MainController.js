@@ -6,17 +6,25 @@ angular.module('MainController', [])
 		console.log("Hello");
 
 	})
-.controller('LoginController', function($scope, User) {
+.controller('LoginController', function($scope, $rootScope, $location, User) {
 
 
     $scope.loginInfo = {};
 
     $scope.login = function(){
 
-         User.login($scope.loginInfo).then(function(response) {
+         User.login($scope.loginInfo).then(function(loginResponse) {
 
-            if(response !== "0"){
-               console.log(response);
+            if(loginResponse.status !== "0"){
+               console.log(loginResponse);
+
+               $rootScope.user = {
+                    loggedIn: true,
+                    data: loginResponse.data
+               }
+
+              $location.url('/account');
+
               
 
             } else {
@@ -25,9 +33,17 @@ angular.module('MainController', [])
                 
                 
     
-        }, function(response) {
+        }, function(err) {
           
-            console.log(response);
+          if(err.status === 1){
+
+             $rootScope.user = {
+                message: "Incorrect username or password."
+             };
+          }
+
+          console.log($rootScope.user.message);
+           
   });
 
 
@@ -37,7 +53,7 @@ angular.module('MainController', [])
 })
 
 
-.controller('RegisterController', function($scope, User) {
+.controller('RegisterController', function($scope, $rootScope, $location, User) {
 
     $scope.registerInfo = {};
 
@@ -45,18 +61,32 @@ angular.module('MainController', [])
     	console.log("called");
         if($scope.registerInfo.password === $scope.registerInfo.passwordCheck) {
             User.register($scope.registerInfo).then(
-                    function(response) {
-                        if(response !== "0"){
+                    function(registerResponse) {
+                        if(registerResponse.status !== "0"){
                          
-                        	console.log(response);
+                        	$rootScope.user = {
+                                loggedIn: true,
+                                data: registerResponse.data
+                            }
+
+                             $location.url('/account');
+
+
                         } else {
                          	console.log(response);
                         }
                         
 
                     },
-                    function(response) {
-                 		console.log(response);
+                    function(err) {
+                 		 if(err.status === 1){
+
+                             $rootScope.user = {
+                                message: "Username taken."
+                             };
+                          }
+
+                          console.log($rootScope.user.message);
 
                     }
                 )
@@ -64,9 +94,13 @@ angular.module('MainController', [])
         	console.log("Password do not match.");
         }
     }
+})
+.controller('AccountController', function($scope, $rootScope, $location, User) {
+
+    console.log("Account");
 
 
-
-  
 
 })
+
+

@@ -17,6 +17,10 @@ angular.module('mapplication', ['ngRoute', 'MainController', 'MainServices'])
 		templateUrl: 'templates/register.html',
 		controller: 'RegisterController'
 	})
+	.when('/account', {
+		templateUrl: 'templates/account.html',
+		controller: 'AccountController'
+	})
 
 	.otherwise({redirectTo:'/'});
 
