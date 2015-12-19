@@ -104,8 +104,6 @@ module.exports = function(app, passport) {
         });
     });
 
-
-
     // =====================================
     // LOGIN ==============================
     // =====================================
@@ -115,7 +113,6 @@ module.exports = function(app, passport) {
     });
 
     // process the login form
-     // process the login form
     app.post('/login', passport.authenticate('local-login'), function(req, res) { 
          res.send(req.user); 
     });  
