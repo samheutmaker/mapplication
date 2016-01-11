@@ -1,5 +1,12 @@
 @import 'control';
 
+html, body{
+	height: 100%;
+	padding: 0px;
+	margin: 0px;
+
+}
+
 .login-page{
 	.login-form{
 		
@@ -30,3 +37,26 @@
 		}
 	}
 }
+
+
+///// BEGIN HOME PAGE STYLES
+
+.home-page{
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	background-color: lightblue;	
+
+	.profile-header{
+		height: 125px;
+		width: 100%;
+		background-color: lightgrey;
+
+		.profile-image{
+			height: 125px;
+			width: 125;
+			border-radius: 50%;
+		}
+	}
+}
+

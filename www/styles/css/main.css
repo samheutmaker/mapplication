@@ -52,4 +52,23 @@ textarea, select, input[type="date"], input[type="datetime"], input[type="dateti
   .button-green:active {
     background-color: #004d00 !important; }
 
+html, body {
+  height: 100%;
+  padding: 0px;
+  margin: 0px; }
+
+.home-page {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: lightblue; }
+  .home-page .profile-header {
+    height: 125px;
+    width: 100%;
+    background-color: lightgrey; }
+    .home-page .profile-header .profile-image {
+      height: 125px;
+      width: 125;
+      border-radius: 50%; }
+
 /*# sourceMappingURL=main.css.map */

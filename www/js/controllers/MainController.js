@@ -3,7 +3,7 @@ angular.module('MainController', [])
 
 	.controller('HomeController', function($scope) {
 
-		console.log("Hello");
+		console.log("HomeController");
 
 	})
 .controller('LoginController', function($scope, $rootScope, $location, User) {
@@ -16,7 +16,6 @@ angular.module('MainController', [])
          User.login($scope.loginInfo).then(function(loginResponse) {
 
             if(loginResponse.status !== "0"){
-               console.log(loginResponse);
 
                $rootScope.user = {
                     loggedIn: true,
@@ -25,12 +24,10 @@ angular.module('MainController', [])
 
               $location.url('/account');
 
-              
 
             } else {
              	console.log(response);
             }
-                
                 
     
         }, function(err) {
@@ -41,8 +38,6 @@ angular.module('MainController', [])
                 message: "Incorrect username or password."
              };
           }
-
-          console.log($rootScope.user.message);
            
   });
 
@@ -58,7 +53,6 @@ angular.module('MainController', [])
     $scope.registerInfo = {};
 
     $scope.register = function(){
-    	console.log("called");
         if($scope.registerInfo.password === $scope.registerInfo.passwordCheck) {
             User.register($scope.registerInfo).then(
                     function(registerResponse) {
@@ -73,25 +67,25 @@ angular.module('MainController', [])
 
 
                         } else {
-                         	console.log(response);
+                         	$rootScope.user = {
+                                message: "Invalid Registration. Please try again."
+                             };
+                             console.log(registerResponse)
                         }
-                        
-
                     },
                     function(err) {
                  		 if(err.status === 1){
 
                              $rootScope.user = {
-                                message: "Username taken."
+                                message: "That username is taken."
                              };
                           }
-
-                          console.log($rootScope.user.message);
-
                     }
                 )
         } else {
-        	console.log("Password do not match.");
+            $rootScope.user = {
+                message: "Passwords do not match."
+                             };
         }
     }
 })
