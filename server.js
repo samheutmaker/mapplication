@@ -9,6 +9,8 @@ mongoose.connect('localhost:27017');
 app.use('/auth', mRouter);
 // Set up pin routes
 app.use('/map', pinRouter);
+// Serve static files
+app.use(express.static(__dirname + '/www/build'));
 // Deploy server
 app.listen(8888, () => {
   console.log('Server up on port' + 8888);
