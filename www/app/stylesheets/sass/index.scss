@@ -19,13 +19,14 @@ a{
 
 // Page Header
 nav {
-    position: relative;
-    height: 80px;
+    position: absolute;
+    height: 60px;
     width: 100%;
     top: 0px;
     left: 0px;
     margin: 0px 0px 0px 0px;
-    background-color: white;
+    background-color: rgba(0,0,0,0.6);
+    z-index: 9000000;
 
     // border-bottom: 1px solid rgba(0, 0, 0, 0.4);
 
@@ -81,5 +82,23 @@ nav {
             }
         }
     }
+}
+
+.auth-container {
+    position: relative;
+    height: 400px;
+    width: 600px;
+    background-color: rgba(0,0,0,0.6);
+    margin: 0 auto;
+    top: calc((100% - 400px)/2);
+    border-radius: 5px;
+}
+
+.leaflet-container{
+    position: absolute;
+    height: 100%;
+    top: 0px;
+    width: 100%;
+    display: block;
 }
 
