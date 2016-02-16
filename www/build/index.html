@@ -21,14 +21,22 @@
 					<h3>Create New Pin</h3>
 					<form class="pure-form pure-form-stacked" data-ng-submit="createNewPin()">
 						<fieldset>
-							<input placeholder="Pin Name" class="input" type="text" name="name" ng-model="pinData.data" />
+							<input placeholder="Pin Name" class="input" type="text" name="name" ng-model="pinData.name" />
 							<input placeholder="Pin Category" class="input" type="text" name="category" ng-model="pinData.category" />
 							<button type="submit" class="pure-button pure-button-primary">Create</button>
 						</fieldset>
 					</form>
 				</section>
+				<section>
+					<div ng-repeat="pin in allPins">
+						{{pin.name}}
+						<br/>
+						{{pin.coords}}
+					</div>
+				</section>
 				
 			</section>
+			<!-- Map -->
 			<section class="leaflet-container"  data-ng-if="showMap">
 				<mapbox></mapbox>
 			</section>

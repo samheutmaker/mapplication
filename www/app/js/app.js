@@ -17,7 +17,7 @@ const mapplication = angular.module('mapplication', ['Factory', 'ngAnimate', 'ng
     }
   });
 
-// Map Controller
+// Define application controllers
 mapplication
 //Auth Controller
 .controller('AuthController', ['$scope', '$rootScope', 'EE', '$window', '$timeout',
@@ -91,13 +91,15 @@ mapplication
   }
 ])
 // Menu Controller
-.controller('ControlsController', ['$scope', 'EE', 'Pin',
-  function($scope, EE, Pin) {
+.controller('ControlsController', ['$scope', 'EE', 'Pin',  '$rootScope',
+  function($scope, EE, Pin, $rootScope) {
 
     // Hide Map Initially
     $scope.showMap = false;
+    // All Pin Data
+    $scope.allPins = [];
     // Empty Map Object
-    $scope.map = {};
+    $scope.map = null;
     // Hide Controls
     $scope.showControls = false;
     //Empty User Object
@@ -114,38 +116,53 @@ mapplication
     // User Authenticated
     $scope.$on('USER_AUTHENTICATED', (id) => {
       $scope.showControls = true;
-      Pin.loadUserPins().then(function(res){
-        res.data.forEach(function(pin, pinIndex) {
-          L.mapbox.featureLayer({
-            // this feature is in the GeoJSON format: see geojson.org
-            // for the full specification
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              // coordinates here are in longitude, latitude order because
-              // x, y is the standard for GeoJSON and many formats
-              coordinates: [pin.coords.lng,
-                pin.coords.lat
-              ]
-            },
-            properties: {
-              title: pin.name,
-              description: '1718 14th St NW, Washington, DC',
-              // one can customize markers by adding simplestyle properties
-              // https://www.mapbox.com/guides/an-open-platform/#simplestyle
-              'marker-size': 'large',
-              'marker-color': '#BE9A6B',
-              'marker-symbol': 'cafe'
-            }
-          }).addTo($scope.map);
-        })
-      })
-
+      if ($scope.map) {
+        $scope.getAndMapMarkers();
+      }
     });
+
+    // Get all users marker and place on map
+    $scope.getAndMapMarkers = function() {
+      Pin.loadUserPins().then(function(res) {
+        console.log(res);
+          $scope.allPins = res.data;  
+        $scope.mapMarkers(res.data);
+      });
+    };
+
+    // Map all markers given as parameter
+    $scope.mapMarkers = function(arrayToMap) {
+      arrayToMap.forEach(function(pin, pinIndex) {
+        L.mapbox.featureLayer({
+          // this feature is in the GeoJSON format: see geojson.org
+          // for the full specification
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            // coordinates here are in longitude, latitude order because
+            // x, y is the standard for GeoJSON and many formats
+            coordinates: [pin.coords.lng,
+              pin.coords.lat
+            ]
+          },
+          properties: {
+            title: pin.name,
+            description: '1718 14th St NW, Washington, DC',
+            // one can customize markers by adding simplestyle properties
+            // https://www.mapbox.com/guides/an-open-platform/#simplestyle
+            'marker-size': 'large',
+            'marker-color': '#BE9A6B',
+            'marker-symbol': 'cafe'
+          }
+        }).addTo($scope.map);
+      })
+    };
+
     //Create New Pin 
-    $scope.createNewPin = function(){
+    $scope.createNewPin = function() {
       Pin.createPin($scope.pinData).then(function(res) {
         console.log(res);
+        $scope.getAndMapMarkers();
       })
     }
 
@@ -182,7 +199,8 @@ mapplication
           $scope.actions.creating = true;
           // Add Coords to new pin
           $scope.pinData.coords = {
-            lat: coords.lat, lng: coords.lng
+            lat: coords.lat,
+            lng: coords.lng
           };
         });
       }
@@ -194,11 +212,17 @@ mapplication
       $scope.$apply(function() {
         // Pass location data to map instance
         $scope.callback = function(map) {
+          // Store map instance
           $scope.map = map;
+          // Set map Center
           $scope.map.setView([pos.coords.latitude, pos.coords.longitude], 15);
-          // Show loaded Map
         }
+        // Show Map
         $scope.showMap = true;
+        // Load All Markers, if user is logged in
+        if ($rootScope.authenticated) {
+          $scope.getAndMapMarkers();
+        }
         // Broadcast event
         EE.emit('MAP_LOADED');
       });
