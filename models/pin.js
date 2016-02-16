@@ -2,14 +2,17 @@ const mongoose = require('mongoose');
 
 // Pin Schema
 const pinSchema = mongoose.Schema({
-  text: String,
+  name: String,
+  coords: {
+  	lat: Number,
+  	lng: Number
+  },
+  partOf: String,
+  tags: Array,
+  public: Boolean,
   owner_id: String,
-  postedOn: Date,
-  expires: Boolean,
-  location: {
-    lat: String,
-    lng: String
-  }
+  expires: Date,
+  postedOn: Date
 });
 
 

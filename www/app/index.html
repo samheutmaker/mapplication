@@ -1,39 +1,78 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8" />
-<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <title>Mapplication</title>
-
-
-
-<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
-
-
-	<link href="css/index.css" rel="stylesheet" />
-	<link href="css/leaflet.css" rel="stylesheet" />
-   	<script src="bundle.js"></script>
-   	<script src="js/mapbox.js"></script>
-
-</head>
-<body data-ng-app="mapplication" data-ng-controller="HomeController">
-	<nav >
-    </nav>
-
-    <section class="leaflet-container"  data-ng-if="showMap">
-    	<mapbox callback="callback"></mapbox>
-	</section>
-
-	<section class="auth-container" data-ng-controller="AuthController">
-			<section class="auth-box login-box" data-ng-controller="LoginController">
-				<form data-ng-submit="login(userLoginData)">
-					<input type="email" name="email" ng-model="userLoginData.email" />
-					<input type="password" name="password" ng-model="userLoginData.password" />
-					<input type="submit" /> 
-				</form>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<title>Mapplication</title>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+		<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
+		<link href="css/index.css" rel="stylesheet" />
+		<link href="css/leaflet.css" rel="stylesheet" />
+		<script src="bundle.js"></script>
+		<script src="js/mapbox.js"></script>
+	</head>
+	<body data-ng-app="mapplication" >
+		<!-- Controls & Map -->
+		<div data-ng-controller="ControlsController">
+			<section class="controls" data-ng-show="showControls">
+				<div data-ng-click="actions.pinning = true;">Add Pin</div>
+				<p data-ng-show="actions.pinning">Pinning..</p>
+				<section data-ng-show="actions.creating">
+					<h3>Create New Pin</h3>
+					<form class="pure-form pure-form-stacked" data-ng-submit="createNewPin()">
+						<fieldset>
+							<input placeholder="Pin Name" class="input" type="text" name="name" ng-model="pinData.data" />
+							<input placeholder="Pin Category" class="input" type="text" name="category" ng-model="pinData.category" />
+							<button type="submit" class="pure-button pure-button-primary">Create</button>
+						</fieldset>
+					</form>
+				</section>
+				
 			</section>
-
-	</section>
-
-</body>
+			<section class="leaflet-container"  data-ng-if="showMap">
+				<mapbox></mapbox>
+			</section>
+		</div>
+		<!-- Auth Box -->
+		<section class="auth-container" data-ng-controller="AuthController" ng-show="showAuthBox">
+			<!-- Login -->
+			
+			<section class="auth-box login-box" data-ng-show="login" >
+				<div data-ng-controller="LoginController">
+					<h2>Login</h2>
+					<form class="pure-form pure-form-stacked" data-ng-submit="login(userLoginData)">
+						<fieldset>
+							<input placeholder="email" class="input" type="email" name="email" ng-model="userLoginData.email" />
+							
+							<input placeholder="password" class="input" type="password" name="password" ng-model="userLoginData.password" />
+							
+							<button type="submit" class="pure-button pure-button-primary">Sign in</button>
+						</fieldset>
+					</form>
+				</div>
+				<p class="message" data-ng-click="login = false;">Need an acount? <a href="#" >Register</a></p>
+			</section>
+			
+			<!-- Register -->
+			
+			<section class="auth-box register-box" data-ng-show="!login">
+				<div data-ng-controller="RegisterController">
+					<h2>Register</h2>
+					<form class="pure-form pure-form-stacked" data-ng-submit="register(userRegisterData)">
+						<fieldset>
+							<input placeholder="email" class="input" type="email" name="email" ng-model="userRegisterData.email" />
+							
+							<input placeholder="password" class="input" type="password" name="password" ng-model="userRegisterData.password" />
+							<input placeholder="password, again" class="input" type="password" name="passwordCheck" ng-model="userRegisterData.passwordCheck" />
+							
+							<button type="submit" class="pure-button pure-button-primary">Register</button>
+						</fieldset>
+					</form>
+					
+				</div>
+				<p class="message" data-ng-click="login = true;">Already ahave an account? <a href="#">Login</a></p>
+			</section>
+			<!-- End Auth Box -->
+		</section>
+	</body>
 </html>

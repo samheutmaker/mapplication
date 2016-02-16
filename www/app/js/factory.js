@@ -7,6 +7,17 @@ angular.module('Factory', [])
     }
   }
 })
+// Handles Pin Requests
+.factory('Pin', function($http){
+  return {
+    loadUserPins: function(){
+      return $http.get('/pins/all');
+    },
+    createPin: function(pinData){
+      return $http.post('/pins/new', pinData);
+    }
+  }
+})
 // Handles Auth
 .factory('AuthFactory', function($http) {
   return {
@@ -16,11 +27,25 @@ angular.module('Factory', [])
       var headerData = btoa(headerData);
 
       return $http({
-        methods: 'GET',
+        method: 'GET',
         url: '/auth/login',
         headers: {
           authorization: 'Basic ' + headerData
         }
+      });
+    },
+    register: function(data) {
+      var toSend = {
+        authentication: {
+          email: data.email,
+          password: data.password
+        }
+      };
+
+      return $http({
+        method: 'POST',
+        url: 'auth/register',
+        data: toSend
       });
     }
   }

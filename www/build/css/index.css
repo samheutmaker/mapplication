@@ -1,6 +1,6 @@
 @font-face {
   font-family: "clean";
-  src: url(clean.woff); }
+  src: url(fonts/clean.woff); }
 
 html, body {
   height: 100%;
@@ -8,66 +8,38 @@ html, body {
   margin: 0px;
   font-family: clean !important; }
 
-a {
-  color: black; }
-  a:link, a:visited {
-    color: black; }
-
-nav {
-  position: absolute;
-  height: 60px;
-  width: 100%;
-  top: 0px;
-  left: 0px;
-  margin: 0px 0px 0px 0px;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 9000000; }
-  nav .nav-section {
-    position: relative;
-    height: 100%;
-    margin: 0px;
-    padding: 0px;
-    float: left;
-    width: 50%; }
-    nav .nav-section .logo {
-      letter-spacing: 0px;
-      font-weight: normal;
-      margin: 22px 0px 0px 100px;
-      font-family: clean !important;
-      font-weight: bold;
-      font-size: 24px;
-      color: #172126; }
-    nav .nav-section .title {
-      color: #76A9E5;
-      font-size: 22px;
-      opacity: 0.7;
-      text-transform: capitalize; }
-    nav .nav-section ul.nav-list {
-      position: absolute;
-      right: 0px;
-      list-style: none;
-      margin: 25px 100px 0px 0px;
-      font-family: clean !important;
-      font-weight: 600; }
-      nav .nav-section ul.nav-list li {
-        margin: 0px 0px 0px 20px;
-        color: #172126;
-        font-size: 20px;
-        letter-spacing: 0px;
-        float: left;
-        transition: all 0.3s; }
-        nav .nav-section ul.nav-list li:hover, nav .nav-section ul.nav-list li:active {
-          cursor: pointer;
-          color: #76A9E5; }
-
 .auth-container {
   position: relative;
   height: 400px;
   width: 600px;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(173, 191, 204, 0.8);
   margin: 0 auto;
-  top: calc((100% - 400px)/2);
+  top: calc((100% - 420px)/2);
   border-radius: 5px; }
+  .auth-container .auth-box {
+    position: relative;
+    color: black;
+    height: auto;
+    width: 300px;
+    margin: 0 auto;
+    top: 60px; }
+    .auth-container .auth-box .input {
+      position: relative;
+      width: 100%;
+      color: black;
+      margin-bottom: 10px; }
+    .auth-container .auth-box .message {
+      font-size: 18px;
+      color: black; }
+
+.controls {
+  position: absolute;
+  width: 300px;
+  height: 95%;
+  top: 2.5%;
+  background-color: rgba(173, 191, 204, 0.8);
+  left: 2.5%;
+  z-index: 9999999999; }
 
 .leaflet-container {
   position: absolute;

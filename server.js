@@ -8,7 +8,7 @@ mongoose.connect('localhost:27017');
 // Set up auth routes
 app.use('/auth', mRouter);
 // Set up pin routes
-app.use('/map', pinRouter);
+app.use('/pins', pinRouter);
 // Serve static files
 app.use(express.static(__dirname + '/www/build'));
 // Deploy server

@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const jsonParser = require('body-parser').json;
+const jsonParser = require('body-parser').json();
 const mAuth = require('major-a').majorAuth;
 const dbError = require(__dirname + '/../lib/errors/handle-db-error');
 const Pin = require(__dirname + '/../models/pin.js');
@@ -26,8 +26,11 @@ pinRouter.post('/search', jsonParser, (req, res) => {
 // Create new pin
 pinRouter.post('/new', mAuth(), jsonParser, (req, res) => {
   var newPin = new Pin();
-  newPin.text = req.body.text;
-  newPin.location = req.body.location;
+  newPin.name = req.body.name;
+  newPin.coords = req.body.coords;
+  newPin.partOf = req.body.collection;
+  newPin.tags = req.body.tags;
+  newPin.public = req.body.public;
   newPin.expires = req.body.expires;
   newPin.owner_id = req.user._id;
   newPin.postedOn = new Date();
@@ -40,9 +43,9 @@ pinRouter.post('/new', mAuth(), jsonParser, (req, res) => {
 });
 
 // Get all of a users pins
-pinRouter.get('/pins', mAuth(), (req, res) => {
+pinRouter.get('/all', mAuth(), (req, res) => {
   Pin.find({
-    owner_id: req.body.id
+    owner_id: req.user._id
   }, (err, data) => {
     if (err) return dbError(err, res);
     if (!data) {
