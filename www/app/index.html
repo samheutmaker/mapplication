@@ -31,10 +31,10 @@
 					<div ng-repeat="pin in allPins">
 						{{pin.name}}
 						<br/>
-						{{pin.coords}}
+						<button data-ng-click="deletePin($index)">Delete</button>
 					</div>
 				</section>
-				
+
 			</section>
 			<!-- Map -->
 			<section class="leaflet-container"  data-ng-if="showMap">
@@ -44,39 +44,39 @@
 		<!-- Auth Box -->
 		<section class="auth-container" data-ng-controller="AuthController" ng-show="showAuthBox">
 			<!-- Login -->
-			
+
 			<section class="auth-box login-box" data-ng-show="login" >
 				<div data-ng-controller="LoginController">
 					<h2>Login</h2>
 					<form class="pure-form pure-form-stacked" data-ng-submit="login(userLoginData)">
 						<fieldset>
 							<input placeholder="email" class="input" type="email" name="email" ng-model="userLoginData.email" />
-							
+
 							<input placeholder="password" class="input" type="password" name="password" ng-model="userLoginData.password" />
-							
+
 							<button type="submit" class="pure-button pure-button-primary">Sign in</button>
 						</fieldset>
 					</form>
 				</div>
 				<p class="message" data-ng-click="login = false;">Need an acount? <a href="#" >Register</a></p>
 			</section>
-			
+
 			<!-- Register -->
-			
+
 			<section class="auth-box register-box" data-ng-show="!login">
 				<div data-ng-controller="RegisterController">
 					<h2>Register</h2>
 					<form class="pure-form pure-form-stacked" data-ng-submit="register(userRegisterData)">
 						<fieldset>
 							<input placeholder="email" class="input" type="email" name="email" ng-model="userRegisterData.email" />
-							
+
 							<input placeholder="password" class="input" type="password" name="password" ng-model="userRegisterData.password" />
 							<input placeholder="password, again" class="input" type="password" name="passwordCheck" ng-model="userRegisterData.passwordCheck" />
-							
+
 							<button type="submit" class="pure-button pure-button-primary">Register</button>
 						</fieldset>
 					</form>
-					
+
 				</div>
 				<p class="message" data-ng-click="login = true;">Already ahave an account? <a href="#">Login</a></p>
 			</section>

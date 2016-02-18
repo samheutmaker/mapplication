@@ -56,3 +56,27 @@ pinRouter.get('/all', mAuth(), (req, res) => {
     res.status(200).json(data);
   });
 });
+
+// Update Pin
+pinRouter.put('/:id/update', mAuth(), (req, res) => {
+  Pin.update({
+    owner_id: req.user._id,
+    _id: req.params.id
+  }, req.body, (err, data) => {
+    if (err) return dbError(err, res);
+
+    res.status(200).json(data);
+  });
+});
+
+// Remove Pin
+pinRouter.delete('/:id/delete', mAuth(), (req, res) => {
+  Pin.remove({
+    owner_id: req.user._id,
+    _id: req.params.id
+  }, (err, data) => {
+    if (err) return dbError(err, res);
+
+    res.status(200).json(data);
+  });
+});
