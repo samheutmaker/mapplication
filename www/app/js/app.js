@@ -189,7 +189,6 @@ mapplication
 
 // Mapbox Directive
 .directive('mapbox', ['EE',
-
   function(EE) {
     return {
       restrict: 'EA',

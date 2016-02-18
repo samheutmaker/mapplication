@@ -12,7 +12,7 @@ html, body {
   position: relative;
   height: 400px;
   width: 600px;
-  background-color: rgba(173, 191, 204, 0.8);
+  background-color: rgba(173, 191, 204, 0.9);
   margin: 0 auto;
   top: calc((100% - 420px)/2);
   border-radius: 5px; }
@@ -34,12 +34,21 @@ html, body {
 
 .controls {
   position: absolute;
-  width: 300px;
+  width: 200px;
   height: 95%;
   top: 2.5%;
-  background-color: rgba(173, 191, 204, 0.8);
+  background-color: rgba(173, 191, 204, 0.9);
   left: 2.5%;
   z-index: 9999999999; }
+  .controls .new-pin-menu {
+    height: 300px;
+    width: 200px;
+    margin-left: 15px;
+    background-color: rgba(173, 191, 204, 0.9);
+    position: absolute;
+    z-index: 9999999999;
+    left: 200px;
+    top: 0px; }
 
 .leaflet-container {
   position: absolute;
