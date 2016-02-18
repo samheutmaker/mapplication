@@ -33,16 +33,17 @@
 					</form>
 				</section>
 				<section>
-					<div ng-repeat="pin in allPins" class="pin-item ng-trans ng-trans-slide-left">
+					<div ng-repeat="pin in allPins | orderBy: '-postedOn'" class="pin-item ng-trans ng-trans-slide-left" >
 						{{pin.name}}
+						{{pin.postedOn}}
 						<br/>
-						<button data-ng-click="deletePin($index)">Delete</button>
+						<button data-ng-click="deletePin(pin)">Delete</button>
 					</div>
 				</section>
 
 			</section>
 			<!-- Map -->
-			<section class="leaflet-container"  data-ng-if="showMap">
+			<section class="leaflet-container" data-ng-if="showMap">
 				<mapbox></mapbox>
 			</section>
 		</div>

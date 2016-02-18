@@ -181,10 +181,10 @@
 	      };
 
 	      // Delete Pin
-	      $scope.deletePin = function(index) {
-	        var pin = $scope.allPins.splice(index, 1);
+	      $scope.deletePin = function(pin) {
+	        $scope.allPins.splice($scope.allPins.indexOf(pin), 1);
 	        EE.emit('MARKERS_CHANGED', $scope.allPins);
-	        Pin.deletePin(pin[0]._id).then(function(res) {});
+	        Pin.deletePin(pin._id).then(function(res) {});
 	      };
 
 	      //Create New Pin
@@ -239,7 +239,7 @@
 	    return {
 	      restrict: 'EA',
 	      replace: true,
-	      template: '<div></div>',
+	      template: '<div ng-class="{pinning: actions.pinning}"></div>',
 	      link: function(scope, element, attributes) {
 	        L.mapbox.accessToken =
 	          'pk.eyJ1Ijoic2FtaGV1dG1ha2VyIiwiYSI6ImNpa25qcXV3eTBzcGJ2a2ttbnV6OXJtNzEifQ.8faX-FF4gPTe8WFrf24reg';

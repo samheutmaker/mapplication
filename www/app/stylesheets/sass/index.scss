@@ -55,11 +55,11 @@ html, body {
     .new-pin-menu{
       height: 300px;
       width: 200px;
-      margin-left: 15px;
+      margin-left: 10px;
       background-color: rgba(173, 191, 204, 0.9);
       position: absolute;
       z-index: 9999999999;
-      left: 200px;
+      left: 300px;
       top: 0px;
 
     }
@@ -71,6 +71,10 @@ html, body {
     top: 0px;
     width: 100%;
     display: block;
+
+    .pinning{
+      cursor: pointer !important;
+    }
 }
 
 .map-tools-container{
