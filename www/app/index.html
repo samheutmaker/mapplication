@@ -16,9 +16,13 @@
 		<!-- Controls & Map -->
 		<div data-ng-controller="ControlsController">
 			<section class="controls ng-trans ng-trans-slide-left" data-ng-show="showControls">
-				<div data-ng-click="actions.pinning = true;">Add Pin</div>
+				<section class="map-tools-container">
+					<div data-ng-click="actions.pinning = true;">Add Pin</div>
+				</section>
+
 				<p data-ng-show="actions.pinning">Pinning..</p>
 				<section data-ng-show="actions.creating" class="new-pin-menu ng-trans ng-trans-slide-left">
+
 					<h3>Create New Pin</h3>
 					<form class="pure-form pure-form-stacked" data-ng-submit="createNewPin()">
 						<fieldset>
@@ -29,7 +33,7 @@
 					</form>
 				</section>
 				<section>
-					<div ng-repeat="pin in allPins">
+					<div ng-repeat="pin in allPins" class="pin-item ng-trans ng-trans-slide-left">
 						{{pin.name}}
 						<br/>
 						<button data-ng-click="deletePin($index)">Delete</button>
