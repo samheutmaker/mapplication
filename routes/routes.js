@@ -9,12 +9,13 @@ const Pin = require(__dirname + '/../models/pin.js');
 const pinRouter = module.exports = exports = express.Router();
 
 // Find pin based on direct query match
-pinRouter.post('/search', jsonParser, (req, res) => {
-  Pin.findOne({
-    text: req.body.text
+pinRouter.get('/search/:query', jsonParser, (req, res) => {
+  console.log(req.params.query);
+  Pin.find({
+    name: req.params.query
   }, (err, data) => {
 
-    if (!data) {
+    if (!data.length) {
       return res.status(200).json({
         msg: 'No pin found.'
       });
@@ -23,10 +24,12 @@ pinRouter.post('/search', jsonParser, (req, res) => {
   });
 });
 
+
 // Create new pin
 pinRouter.post('/new', mAuth(), jsonParser, (req, res) => {
   var newPin = new Pin();
   newPin.name = req.body.name;
+  newPin.content = req.body.content;
   newPin.coords = req.body.coords;
   newPin.partOf = req.body.collection;
   newPin.tags = req.body.tags;

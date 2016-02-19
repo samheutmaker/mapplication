@@ -1,92 +1,75 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8" />
-		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-		<title>Mapplication</title>
-		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-		<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
-		<link href="css/index.css" rel="stylesheet" />
-		<link href="css/leaflet.css" rel="stylesheet" />
-		<link href="css/ng-trans.css" rel="stylesheet" />
-		<script src="bundle.js"></script>
-		<script src="js/mapbox.js"></script>
-	</head>
-	<body data-ng-app="mapplication" >
-		<!-- Controls & Map -->
-		<div data-ng-controller="ControlsController">
-			<section class="controls ng-trans ng-trans-slide-left" data-ng-show="showControls">
-				<section class="map-tools-container">
-					<div data-ng-click="actions.pinning = true;">Add Pin</div>
-				</section>
 
-				<p data-ng-show="actions.pinning">Pinning..</p>
-				<section data-ng-show="actions.creating" class="new-pin-menu ng-trans ng-trans-slide-left">
+<head>
+	<meta charset="UTF-8" />
+	<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+	<title>Mapplication</title>
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+	<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
+	<link href="css/index.css" rel="stylesheet" />
+	<link href="css/leaflet.css" rel="stylesheet" />
+	<link href="css/ng-trans.css" rel="stylesheet" />
+	<script src="bundle.js"></script>
+	<script src="js/mapbox.js"></script>
+</head>
 
-					<h3>Create New Pin</h3>
-					<form class="pure-form pure-form-stacked" data-ng-submit="createNewPin()">
-						<fieldset>
-							<input placeholder="Pin Name" class="input" type="text" name="name" ng-model="pinData.name" />
-							<input placeholder="Pin Category" class="input" type="text" name="category" ng-model="pinData.category" />
-							<button type="submit" class="pure-button pure-button-primary">Create</button>
-						</fieldset>
-					</form>
-				</section>
-				<section>
-					<div ng-repeat="pin in allPins | orderBy: '-postedOn'" class="pin-item ng-trans ng-trans-slide-left" >
-						{{pin.name}}
-						{{pin.postedOn}}
-						<br/>
-						<button data-ng-click="deletePin(pin)">Delete</button>
-					</div>
-				</section>
+<body data-ng-app="mapplication">
+	<!-- Controls & Map -->
+	<div data-ng-controller="ControlsController">
+		<section class="controls ng-trans ng-trans-slide-left" data-ng-show="showControls">
+			<section class="map-tools-container">
+				<div data-ng-click="actions.pinning = true;">Add Pin</div>
+				<div data-ng-click="actions.searching = true;">Search</div>
+			</section>
+			<section class="search-menu" data-ng-show="actions.searching">
+				<form ng-keyup="searchFor(search)">
+					<input class="input" ng-model="search">
+				</form>
+				<p> Currently search for {{ search }}</P>
+			</section>
+
+			<p data-ng-show="actions.pinning">Pinning..</p>
+
+			<!-- Create New Pin -->
+			<section data-ng-show="actions.creating" class="new-pin-menu ng-trans ng-trans-slide-left">
+
+				<h3>Create New Pin</h3>
+				<form class="pure-form pure-form-stacked" data-ng-submit="createNewPin()">
+					<fieldset>
+						<input placeholder="Pin Name" class="input" type="text" name="name" ng-model="pinData.name" />
+						<input placeholder="Pin Content" class="input" type="text" name="content" ng-model="pinData.content" />
+						<button type="submit" class="pure-button pure-button-primary">Create</button>
+					</fieldset>
+				</form>
+			</section>
+			<!-- Pin Detail -->
+			<section class="pin-detail-container ng-trans ng-trans-slide-left" data-ng-show="actions.detail">
+				<h2>{{activePin.name}}</h2>
+				{{activePin.content}}<br />
 
 			</section>
-			<!-- Map -->
-			<section class="leaflet-container" data-ng-if="showMap">
-				<mapbox></mapbox>
-			</section>
-		</div>
-		<!-- Auth Box -->
-		<section class="auth-container" data-ng-controller="AuthController" ng-show="showAuthBox">
-			<!-- Login -->
-
-			<section class="auth-box login-box" data-ng-show="login" >
-				<div data-ng-controller="LoginController">
-					<h2>Login</h2>
-					<form class="pure-form pure-form-stacked" data-ng-submit="login(userLoginData)">
-						<fieldset>
-							<input placeholder="email" class="input" type="email" name="email" ng-model="userLoginData.email" />
-
-							<input placeholder="password" class="input" type="password" name="password" ng-model="userLoginData.password" />
-
-							<button type="submit" class="pure-button pure-button-primary">Sign in</button>
-						</fieldset>
-					</form>
+			<section>
+				<div 
+				class="pin-item ng-trans ng-trans-slide-left" 
+				data-ng-repeat="pin in allPins | orderBy: '-postedOn'" 
+				data-ng-class="{active: activePin._id === pin._id && actions.detail}" 
+				data-ng-click="showDetail(pin._id)"
+				>
+					{{pin.name}}
+					<br/>
+					<!-- <button data-ng-click="deletePin(pin)">Delete</button> -->
 				</div>
-				<p class="message" data-ng-click="login = false;">Need an acount? <a href="#" >Register</a></p>
 			</section>
 
-			<!-- Register -->
-
-			<section class="auth-box register-box" data-ng-show="!login">
-				<div data-ng-controller="RegisterController">
-					<h2>Register</h2>
-					<form class="pure-form pure-form-stacked" data-ng-submit="register(userRegisterData)">
-						<fieldset>
-							<input placeholder="email" class="input" type="email" name="email" ng-model="userRegisterData.email" />
-
-							<input placeholder="password" class="input" type="password" name="password" ng-model="userRegisterData.password" />
-							<input placeholder="password, again" class="input" type="password" name="passwordCheck" ng-model="userRegisterData.passwordCheck" />
-
-							<button type="submit" class="pure-button pure-button-primary">Register</button>
-						</fieldset>
-					</form>
-
-				</div>
-				<p class="message" data-ng-click="login = true;">Already ahave an account? <a href="#">Login</a></p>
-			</section>
-			<!-- End Auth Box -->
 		</section>
-	</body>
+		<!-- Map -->
+		<section class="leaflet-container" data-ng-if="showMap">
+			<mapbox></mapbox>
+		</section>
+	</div>
+
+	<ng-include src="'components/auth.html'"></ng-include>
+</body>
+
 </html>

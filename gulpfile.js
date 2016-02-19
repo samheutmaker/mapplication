@@ -3,11 +3,11 @@ const sass = require('gulp-sass');
 const webpack = require('webpack-stream');
 
 const files = {
-	all: [__dirname + '/www/app/*.html', __dirname + '/www/app/js/*.js']
+	all: [__dirname + '/www/app/**/*.html', __dirname + '/www/app/*.html', __dirname + '/www/app/js/*.js']
 };
 
 gulp.task('html:dev', () => {
-	gulp.src(__dirname + '/www/app/*.html')
+	gulp.src([__dirname + '/www/app/*.html', __dirname + '/www/app/**/*.html'])
 	.pipe(gulp.dest(__dirname + '/www/build'))
 })
 

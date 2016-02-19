@@ -7,6 +7,7 @@ const pinSchema = mongoose.Schema({
   	lat: Number,
   	lng: Number
   },
+  content: String,
   partOf: String,
   tags: Array,
   public: Boolean,

@@ -13,11 +13,11 @@ html, body {
 
 
 .auth-container {
-    position: relative;
+    position: absolute;
     height: 400px;
     width: 600px;
     background-color: rgba(173, 191, 204, 0.9);
-    margin: 0 auto;
+    left: calc((100% - 600px)/2);
     top: calc((100% - 420px)/2);
     border-radius: 5px;
 
@@ -45,22 +45,26 @@ html, body {
 
 .controls{
     position: absolute;
-    width: 300px;
-    height: 100%;
-    top: 0%;
-    background-color: rgba(173, 191, 204, 0.9);
+    width: 250px;
+    height: calc(100% - 40px);
+    top: 20px;
+    margin-left: 20px;
+    left: 100px;
+    background-color: rgba(146, 143, 198, 0.9);
     left: 0%;
     z-index: 9999999999;
+    border-radius:5px;
 
     .new-pin-menu{
       height: 300px;
-      width: 200px;
-      margin-left: 10px;
-      background-color: rgba(173, 191, 204, 0.9);
+      width: 250px;
+      margin-left: 20px;
+      background-color: rgba(146, 143, 198, 0.9);
       position: absolute;
       z-index: 9999999999;
-      left: 300px;
+      left: 250px;
       top: 0px;
+      border-radius:5px;
 
     }
 }
@@ -81,15 +85,37 @@ html, body {
   height: 200px;
   position: relative;
   width: 100%px;
-  border-bottom: 1px solid black;
+  border-radius:5px;
 }
 
+.pin-detail-container{
+   height: 100%;
+      width: 250px;
+      margin-left: 20px;
+      background-color: rgba(146, 143, 198, 0.9);
+      position: absolute;
+      z-index: 9999999999;
+      left: 250px;
+      top: 0px;
+      border-radius:5px;
+}
 
 
 .pin-item{
   position: relative;
   height: 50px;
-  background-color: lightblue;
+  background-color: lighten(rgba(146, 143, 198, 0.9), 5%);
   width: 100%;
-  border-bottom: 1px solid black;
+  border-bottom: 1px inset rgba(79, 77, 140, 0.6);
+  transition: all 0.5s;
+
+  &:hover{
+    cursor:pointer;
+    background-color: darken(white, 5%);
+
+  }
+}
+
+.active{
+  background-color: darken(white, 5%);
 }

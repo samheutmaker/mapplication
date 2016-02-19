@@ -21,6 +21,15 @@ angular.module('Factory', [])
       }
     }
   })
+  // Handles searching
+  .factory('Search', function($http) {
+    return {
+      baseUrl: '/pins/search',
+      query: function(query) {
+        return $http.get(this.baseUrl + '/' + query);
+      }
+    }
+  })
   // Handles Auth
   .factory('AuthFactory', function($http) {
     return {
