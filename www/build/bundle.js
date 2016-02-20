@@ -91,7 +91,6 @@
 
 	    $scope.$on('USER_AUTHENTICATED', () => {
 	      $scope.showAuthBox = false;
-	      console.log('adsf');
 	    })
 	  }
 	])
@@ -150,8 +149,8 @@
 	])
 	// Menu Controller
 	.controller('ControlsController', ['$scope', 'EE', 'Pin', '$rootScope',
-	  'Search',
-	  function($scope, EE, Pin, $rootScope, Search) {
+	  'Search', 'Comment', '$timeout', '$interval',
+	  function($scope, EE, Pin, $rootScope, Search, Comment, $timeout, $interval) {
 
 	    // Hide Map Initially
 	    $scope.showMap = false;
@@ -161,6 +160,8 @@
 	    $scope.searchPins = [];
 	    // Currently active pin
 	    $scope.activePin = {};
+	    // Active Pin Comments
+	    $scope.comments = {};
 	    // Empty Map Object
 	    $scope.map = null;
 	    // Hide Controls
@@ -177,32 +178,45 @@
 	      creating: false,
 	      detail: false,
 	      loading: false,
-	      searching: false
+	      searching: false,
+	      showComments: false
+	    };
+
+	    $scope.stopPinning = function(removeMarker){
+	      $scope.actions.creating = false;
+	      $scope.actions.pinning = false;
+	      if(removeMarker) {
+	        EE.emit('REMOVE_TEMP_MARKER');  
+	      }
+	    };
+
+	    $scope.hideDetail = function(){
+	      $scope.detail = false;
 	    };
 
 
 	    // Search function
 	    $scope.searchFor = function() {
+	      $scope.stopPinning(true);
+	      $scope.hideDetail();
 	      if ($scope.search.length > 1) {
 	        Search.query($scope.search).then(function(res) {
-	          res.data = (res.data.length) ? res.data : []
+	          res.data = (res.data.length) ? res.data : [];
+	          $scope.allPins = res.data;
 	          EE.emit('MARKERS_CHANGED', {
 	            newMarkers: res.data,
 	            shouldDif: false
 	          });
 	        });
 	      } else {
-	        console.log($scope.allPins);
-	        EE.emit('MARKERS_CHANGED', {
-	          newMarkers: $scope.allPins,
-	          shouldDif: true
-	        });
+	        $scope.getAndMapMarkers();
 	      }
 
 	    };
 
 	    // User Authenticated EE
-	    $scope.$on('USER_AUTHENTICATED', (id) => {
+	    $scope.$on('USER_AUTHENTICATED', (event, id) => {
+	      $scope.user._id = id;
 	      $scope.showControls = true;
 	      if ($scope.map) {
 	        $scope.getAndMapMarkers();
@@ -212,26 +226,52 @@
 	    // Marker Clicked EE
 	    $scope.$on('MARKER_CLICKED', function(event, id) {
 	      $scope.showDetail(id);
-	      $scope.$apply(function(){
-	        $scope.actions.detail = true;   
-	        $scope.actions.pinning = false;
-	        $scope.actions.creating = false;
-	      });
 	    });
+
 
 	    // Show marker detail by id
 	    $scope.showDetail = function(pinId) {
-	       $scope.activePin = $scope.allPins.filter(function(pin) {
+	      $scope.getComments(pinId);
+	      $scope.activePin = {};
+	      $scope.activePin = $scope.allPins.filter(function(pin) {
 	        return pin._id === pinId; // Filter out the appropriate one
 	      })[0];
-	        $scope.actions.detail = true; 
-	        $scope.actions.pinning = false; 
-	        $scope.actions.creating = false;
+	      // UI
+	      $scope.actions.detail = true;
+	      $scope.stopPinning(false);
 	    };
+
+	    // Get all comments for a post
+	    $scope.getComments = function(pinId) {
+	      Comment.getComments(pinId).then(function(res) {
+	        $scope.comments = res.data
+	      });
+	    };
+
+	    // $interval(function() {
+	    //   if ($scope.actions.detail) {
+	    //     $scope.getComments($scope.activePin._id);
+	    //     console.log('called');
+	    //   }
+	    // }, 1000);
+
+	    // Post new comment
+	    $scope.postComment = function(newComment, pinId) {
+	      if (newComment.content.length > 7) {
+	        Comment.postComment(newComment, pinId).then(function(res) {
+	          if ($scope.comments)
+	            $scope.comments.push(res.data);
+	        });
+	      }
+	    }
 
 
 	    // Get all users marker and place on map
 	    $scope.getAndMapMarkers = function() {
+	      // UI
+	      $scope.stopPinning(true);
+	      $scope.hideDetail();
+	      // Load Pins
 	      Pin.loadUserPins().then(function(res) {
 	        $scope.allPins = res.data;
 	        EE.emit('MARKERS_CHANGED', {
@@ -53556,6 +53596,17 @@
 	      }
 	    }
 	  })
+	  .factory('Comment', ['$http', function($http){
+	    return {
+	      baseUrl: '/comments',
+	      getComments: function(pinId){
+	        return $http.get(this.baseUrl + '/' + pinId);
+	      },
+	      postComment: function(newComment, pinId) {
+	        return $http.post(this.baseUrl + '/' + pinId + '/new', newComment);
+	      }
+	    }
+	  }])
 	  // Handles searching
 	  .factory('Search', function($http) {
 	    return {

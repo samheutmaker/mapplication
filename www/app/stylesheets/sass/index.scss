@@ -10,8 +10,6 @@ html, body {
     font-family: clean !important;
 }
 
-
-
 .auth-container {
     position: absolute;
     height: 400px;
@@ -21,7 +19,7 @@ html, body {
     top: calc((100% - 420px)/2);
     border-radius: 5px;
 
-    .auth-box{
+    .auth-box {
         position: relative;
         color: black;
         height: auto;
@@ -29,21 +27,21 @@ html, body {
         margin: 0 auto;
         top: 60px;
 
-        .input{
+        .input {
             position: relative;
             width: 100%;
             color: black;
             margin-bottom: 10px;
-
         }
-        .message{
+
+        .message {
             font-size: 18px;
             color: black;
         }
     }
 }
 
-.controls{
+.controls {
     position: absolute;
     width: 250px;
     height: calc(100% - 40px);
@@ -53,69 +51,95 @@ html, body {
     background-color: rgba(146, 143, 198, 0.9);
     left: 0%;
     z-index: 9999999999;
-    border-radius:5px;
+    border-radius: 5px;
 
-    .new-pin-menu{
-      height: 300px;
-      width: 250px;
-      margin-left: 20px;
-      background-color: rgba(146, 143, 198, 0.9);
-      position: absolute;
-      z-index: 9999999999;
-      left: 250px;
-      top: 0px;
-      border-radius:5px;
-
+    .new-pin-menu {
+        height: 300px;
+        width: 250px;
+        margin-left: 20px;
+        background-color: rgba(146, 143, 198, 0.9);
+        position: absolute;
+        z-index: 9999999999;
+        left: 250px;
+        top: 0px;
+        border-radius: 5px;
     }
 }
 
-.leaflet-container{
+.leaflet-container {
     position: absolute;
     height: 100%;
     top: 0px;
     width: 100%;
     display: block;
 
-    .pinning{
-      cursor: pointer !important;
+    .pinning {
+        cursor: pointer !important;
     }
 }
 
-.map-tools-container{
-  height: 200px;
-  position: relative;
-  width: 100%px;
-  border-radius:5px;
+.map-tools-container {
+    height: 200px;
+    position: relative;
+    width: 100% px;
+    border-radius: 5px;
 }
 
-.pin-detail-container{
-   height: 100%;
-      width: 250px;
-      margin-left: 20px;
-      background-color: rgba(146, 143, 198, 0.9);
-      position: absolute;
-      z-index: 9999999999;
-      left: 250px;
-      top: 0px;
-      border-radius:5px;
+.pin-detail-container {
+    height: 100%;
+    width: 250px;
+    margin-left: 20px;
+    background-color: rgba(146, 143, 198, 0.9);
+    position: absolute;
+    z-index: 9999999999;
+    left: 250px;
+    top: 0px;
+    border-radius: 5px;
+    overflow: hidden;
+
+    .new-comment {
+        height: 200px;
+        position: absolute;
+        bottom: 0px;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+    .comments-container {
+      position: relative;
+      height: calc(100% - 250px);
+      width: 260px;
+      overflow: scroll;
+        .comment {
+            position: relative;
+            padding: 15px;
+            text-align: justify;
+            padding-right: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 25px;
+            height: auto;
+            background-color: lighten(rgba(146, 143, 198, 0.9), 5%);
+            max-width: 100%;
+            border-bottom: 1px inset rgba(79, 77, 140, 0.6);
+            transition: all 0.5s;
+        }
+    }
 }
 
+.pin-item {
+    position: relative;
+    height: 50px;
+    background-color: lighten(rgba(146, 143, 198, 0.9), 5%);
+    width: 100%;
+    border-bottom: 1px inset rgba(79, 77, 140, 0.6);
+    transition: all 0.5s;
 
-.pin-item{
-  position: relative;
-  height: 50px;
-  background-color: lighten(rgba(146, 143, 198, 0.9), 5%);
-  width: 100%;
-  border-bottom: 1px inset rgba(79, 77, 140, 0.6);
-  transition: all 0.5s;
+    &:hover {
+        cursor: pointer;
+        background-color: darken(white, 5%);
+    }
+}
 
-  &:hover{
-    cursor:pointer;
+.active {
     background-color: darken(white, 5%);
-
-  }
-}
-
-.active{
-  background-color: darken(white, 5%);
 }

@@ -8,6 +8,7 @@ const Comment = require(__dirname + '/../models/comment');
 const commentRouter = module.exports = exports = express.Router();
 
 commentRouter.post('/:id/new', mAuth(), jsonParser, (req, res) => {
+  
   var newComment = new Comment(req.body);
   newComment.content = req.body.content;
   newComment.owner_id = req.user.id;

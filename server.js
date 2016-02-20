@@ -11,7 +11,7 @@ app.use('/auth', mRouter);
 // Set up pin routes
 app.use('/pins', pinRouter);
 // Set up pin routes
-app.use('/comment', commentRouter);
+app.use('/comments', commentRouter);
 // Serve static files
 app.use(express.static(__dirname + '/www/build'));
 // Deploy server
