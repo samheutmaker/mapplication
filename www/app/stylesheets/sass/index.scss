@@ -10,6 +10,32 @@ html, body {
     font-family: clean !important;
 }
 
+        .search-form {
+            height: 55px;
+            width: 100%;
+            position: relative;
+            border-bottom: 1px inset rgba(0, 0, 0, 0.2);
+            border-top: 1px inset rgba(0, 0, 0, 0.2);
+
+            input {
+                border: none;
+                padding: 5px;
+                box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.4);
+                border-radius: 10px;
+                height: 25px;
+                left: 15px;
+                width: 200px;
+                margin: 10px auto;
+    
+                position: absolute;
+
+                &:focus {
+                    border: none;
+                    outline: none;
+                }
+            }
+        }
+
 .auth-container {
     position: absolute;
     height: 400px;
@@ -79,10 +105,26 @@ html, body {
 }
 
 .map-tools-container {
-    height: 200px;
+    height: 150px;
     position: relative;
     width: 100% px;
     border-radius: 5px;
+    padding: 10px;
+
+
+    .controls{
+        list-style: none;
+        padding: 0px;
+        margin: 0px;
+        background-color: rgba(0,0,0,0);
+        li {
+            float: left;
+            margin: 5px;
+            &:hover{
+                cursor: pointer;
+            }
+        }
+    }
 }
 
 .pin-detail-container {
@@ -105,10 +147,11 @@ html, body {
     }
 
     .comments-container {
-      position: relative;
-      height: calc(100% - 250px);
-      width: 260px;
-      overflow: scroll;
+        position: relative;
+        height: calc(100% - 250px);
+        width: 260px;
+        overflow: scroll;
+
         .comment {
             position: relative;
             padding: 15px;
@@ -128,15 +171,27 @@ html, body {
 
 .pin-item {
     position: relative;
-    height: 50px;
+    height: 150px;
     background-color: lighten(rgba(146, 143, 198, 0.9), 5%);
     width: 100%;
-    border-bottom: 1px inset rgba(79, 77, 140, 0.6);
+    border-bottom: 1px inset rgba(0, 0, 0, 0.2);
     transition: all 0.5s;
-
+    
     &:hover {
         cursor: pointer;
         background-color: darken(white, 5%);
+    }
+
+    h3 {
+        padding: 0px;
+        margin: 0px;
+        font-size: 20spx;
+        padding: 10px 10px 0px 10px
+    }
+
+    .content {
+        font-size: 14px;
+        padding: 0px 10px 10px 10px
     }
 }
 

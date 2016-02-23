@@ -10,7 +10,6 @@ const pinRouter = module.exports = exports = express.Router();
 
 // Find pin based on direct query match
 pinRouter.get('/search/:query', jsonParser, (req, res) => {
-  console.log(req.params.query);
   Pin.find({
     name: req.params.query
   }, (err, data) => {
