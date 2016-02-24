@@ -1,10 +1,9 @@
 const angular = require('angular');
-require('angular-animate');
 require('angular-route');
 
 
 // Create App
-const mapplication = angular.module('mapplication', ['Factory', 'ngAnimate',
+const mapplication = angular.module('mapplication', ['Factory',
   'ngRoute'
 ]);
 
@@ -185,6 +184,9 @@ mapplication
 
     // Show marker detail by id
     $scope.showDetail = function(pinId) {
+      // $scope.comments = [{
+      //   content : 'Sam'
+      // }];
       $scope.getComments(pinId);
       $scope.activePin = {};
       $scope.activePin = $scope.allPins.filter(function(pin) {
@@ -197,6 +199,7 @@ mapplication
 
     // Get all comments for a post
     $scope.getComments = function(pinId) {
+      $scope.comments = [];
       Comment.getComments(pinId).then(function(res) {
         $scope.comments = res.data
       });
