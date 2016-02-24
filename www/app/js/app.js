@@ -205,13 +205,6 @@ mapplication
       });
     };
 
-    // $interval(function() {
-    //   if ($scope.actions.detail) {
-    //     $scope.getComments($scope.activePin._id);
-    //     console.log('called');
-    //   }
-    // }, 1000);
-
     // Post new comment
     $scope.postComment = function(newComment, pinId) {
       if (newComment.content.length > 7) {

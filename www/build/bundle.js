@@ -49,7 +49,7 @@
 
 
 	// Create App
-	const mapplication = angular.module('mapplication', ['Factory',,
+	const mapplication = angular.module('mapplication', ['Factory',
 	  'ngRoute'
 	]);
 
@@ -250,13 +250,6 @@
 	        $scope.comments = res.data
 	      });
 	    };
-
-	    // $interval(function() {
-	    //   if ($scope.actions.detail) {
-	    //     $scope.getComments($scope.activePin._id);
-	    //     console.log('called');
-	    //   }
-	    // }, 1000);
 
 	    // Post new comment
 	    $scope.postComment = function(newComment, pinId) {
