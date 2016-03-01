@@ -1,18 +1,15 @@
 const angular = require('angular');
-require('angular-route');
 
 
 // Create App
-const mapplication = angular.module('mapplication', ['Factory',
-  'ngRoute'
-]);
-
+const mapplication = angular.module('mapplication', []);
 // Require Modules
 const _ = require('staff');
 require('leaflet');
 require('mapbox');
-require('./factory');
 require('./map')(mapplication);
+require('./services')(mapplication);
+require('./directives')(mapplication);
 
 
 

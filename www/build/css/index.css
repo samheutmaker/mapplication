@@ -101,6 +101,7 @@ html, body {
         cursor: pointer; }
 
 .pin-detail-container {
+  position: absolute;
   height: 100%;
   width: 250px;
   margin-left: 20px;
@@ -135,24 +136,27 @@ html, body {
       border-bottom: 1px inset rgba(79, 77, 140, 0.6);
       transition: all 0.5s; }
 
-.pin-item {
+.pin-container {
   position: relative;
-  height: 150px;
-  background-color: rgba(162, 160, 207, 0.9);
-  width: 100%;
-  border-bottom: 1px inset rgba(0, 0, 0, 0.2);
-  transition: all 0.5s; }
-  .pin-item:hover {
-    cursor: pointer;
-    background-color: #f2f2f2; }
-  .pin-item h3 {
-    padding: 0px;
-    margin: 0px;
-    font-size: 20spx;
-    padding: 10px 10px 0px 10px; }
-  .pin-item .content {
-    font-size: 14px;
-    padding: 0px 10px 10px 10px; }
+  background-color: red; }
+  .pin-container .pin-item {
+    position: relative;
+    height: 150px;
+    background-color: rgba(162, 160, 207, 0.9);
+    width: 100%;
+    border-bottom: 1px inset rgba(0, 0, 0, 0.2);
+    transition: all 0.5s; }
+    .pin-container .pin-item:hover {
+      cursor: pointer;
+      background-color: #f2f2f2; }
+    .pin-container .pin-item h3 {
+      padding: 0px;
+      margin: 0px;
+      font-size: 20spx;
+      padding: 10px 10px 0px 10px; }
+    .pin-container .pin-item .content {
+      font-size: 14px;
+      padding: 0px 10px 10px 10px; }
 
 .active {
   background-color: #f2f2f2; }

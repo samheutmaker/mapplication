@@ -45,20 +45,17 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const angular = __webpack_require__(1);
-	__webpack_require__(3);
 
 
 	// Create App
-	const mapplication = angular.module('mapplication', ['Factory',
-	  'ngRoute'
-	]);
-
+	const mapplication = angular.module('mapplication', []);
 	// Require Modules
-	const _ = __webpack_require__(5);
-	__webpack_require__(6);
-	__webpack_require__(7);
-	__webpack_require__(77);
-	__webpack_require__(78)(mapplication);
+	const _ = __webpack_require__(3);
+	__webpack_require__(4);
+	__webpack_require__(5);
+	__webpack_require__(75)(mapplication);
+	__webpack_require__(76)(mapplication);
+	__webpack_require__(83)(mapplication);
 
 
 
@@ -30786,1036 +30783,6 @@
 
 /***/ },
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(4);
-	module.exports = 'ngRoute';
-
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	/**
-	 * @license AngularJS v1.5.0
-	 * (c) 2010-2016 Google, Inc. http://angularjs.org
-	 * License: MIT
-	 */
-	(function(window, angular, undefined) {'use strict';
-
-	/**
-	 * @ngdoc module
-	 * @name ngRoute
-	 * @description
-	 *
-	 * # ngRoute
-	 *
-	 * The `ngRoute` module provides routing and deeplinking services and directives for angular apps.
-	 *
-	 * ## Example
-	 * See {@link ngRoute.$route#example $route} for an example of configuring and using `ngRoute`.
-	 *
-	 *
-	 * <div doc-module-components="ngRoute"></div>
-	 */
-	 /* global -ngRouteModule */
-	var ngRouteModule = angular.module('ngRoute', ['ng']).
-	                        provider('$route', $RouteProvider),
-	    $routeMinErr = angular.$$minErr('ngRoute');
-
-	/**
-	 * @ngdoc provider
-	 * @name $routeProvider
-	 *
-	 * @description
-	 *
-	 * Used for configuring routes.
-	 *
-	 * ## Example
-	 * See {@link ngRoute.$route#example $route} for an example of configuring and using `ngRoute`.
-	 *
-	 * ## Dependencies
-	 * Requires the {@link ngRoute `ngRoute`} module to be installed.
-	 */
-	function $RouteProvider() {
-	  function inherit(parent, extra) {
-	    return angular.extend(Object.create(parent), extra);
-	  }
-
-	  var routes = {};
-
-	  /**
-	   * @ngdoc method
-	   * @name $routeProvider#when
-	   *
-	   * @param {string} path Route path (matched against `$location.path`). If `$location.path`
-	   *    contains redundant trailing slash or is missing one, the route will still match and the
-	   *    `$location.path` will be updated to add or drop the trailing slash to exactly match the
-	   *    route definition.
-	   *
-	   *    * `path` can contain named groups starting with a colon: e.g. `:name`. All characters up
-	   *        to the next slash are matched and stored in `$routeParams` under the given `name`
-	   *        when the route matches.
-	   *    * `path` can contain named groups starting with a colon and ending with a star:
-	   *        e.g.`:name*`. All characters are eagerly stored in `$routeParams` under the given `name`
-	   *        when the route matches.
-	   *    * `path` can contain optional named groups with a question mark: e.g.`:name?`.
-	   *
-	   *    For example, routes like `/color/:color/largecode/:largecode*\/edit` will match
-	   *    `/color/brown/largecode/code/with/slashes/edit` and extract:
-	   *
-	   *    * `color: brown`
-	   *    * `largecode: code/with/slashes`.
-	   *
-	   *
-	   * @param {Object} route Mapping information to be assigned to `$route.current` on route
-	   *    match.
-	   *
-	   *    Object properties:
-	   *
-	   *    - `controller` – `{(string|function()=}` – Controller fn that should be associated with
-	   *      newly created scope or the name of a {@link angular.Module#controller registered
-	   *      controller} if passed as a string.
-	   *    - `controllerAs` – `{string=}` – An identifier name for a reference to the controller.
-	   *      If present, the controller will be published to scope under the `controllerAs` name.
-	   *    - `template` – `{string=|function()=}` – html template as a string or a function that
-	   *      returns an html template as a string which should be used by {@link
-	   *      ngRoute.directive:ngView ngView} or {@link ng.directive:ngInclude ngInclude} directives.
-	   *      This property takes precedence over `templateUrl`.
-	   *
-	   *      If `template` is a function, it will be called with the following parameters:
-	   *
-	   *      - `{Array.<Object>}` - route parameters extracted from the current
-	   *        `$location.path()` by applying the current route
-	   *
-	   *    - `templateUrl` – `{string=|function()=}` – path or function that returns a path to an html
-	   *      template that should be used by {@link ngRoute.directive:ngView ngView}.
-	   *
-	   *      If `templateUrl` is a function, it will be called with the following parameters:
-	   *
-	   *      - `{Array.<Object>}` - route parameters extracted from the current
-	   *        `$location.path()` by applying the current route
-	   *
-	   *    - `resolve` - `{Object.<string, function>=}` - An optional map of dependencies which should
-	   *      be injected into the controller. If any of these dependencies are promises, the router
-	   *      will wait for them all to be resolved or one to be rejected before the controller is
-	   *      instantiated.
-	   *      If all the promises are resolved successfully, the values of the resolved promises are
-	   *      injected and {@link ngRoute.$route#$routeChangeSuccess $routeChangeSuccess} event is
-	   *      fired. If any of the promises are rejected the
-	   *      {@link ngRoute.$route#$routeChangeError $routeChangeError} event is fired.
-	   *      For easier access to the resolved dependencies from the template, the `resolve` map will
-	   *      be available on the scope of the route, under `$resolve` (by default) or a custom name
-	   *      specified by the `resolveAs` property (see below). This can be particularly useful, when
-	   *      working with {@link angular.Module#component components} as route templates.<br />
-	   *      <div class="alert alert-warning">
-	   *        **Note:** If your scope already contains a property with this name, it will be hidden
-	   *        or overwritten. Make sure, you specify an appropriate name for this property, that
-	   *        does not collide with other properties on the scope.
-	   *      </div>
-	   *      The map object is:
-	   *
-	   *      - `key` – `{string}`: a name of a dependency to be injected into the controller.
-	   *      - `factory` - `{string|function}`: If `string` then it is an alias for a service.
-	   *        Otherwise if function, then it is {@link auto.$injector#invoke injected}
-	   *        and the return value is treated as the dependency. If the result is a promise, it is
-	   *        resolved before its value is injected into the controller. Be aware that
-	   *        `ngRoute.$routeParams` will still refer to the previous route within these resolve
-	   *        functions.  Use `$route.current.params` to access the new route parameters, instead.
-	   *
-	   *    - `resolveAs` - `{string=}` - The name under which the `resolve` map will be available on
-	   *      the scope of the route. If omitted, defaults to `$resolve`.
-	   *
-	   *    - `redirectTo` – `{(string|function())=}` – value to update
-	   *      {@link ng.$location $location} path with and trigger route redirection.
-	   *
-	   *      If `redirectTo` is a function, it will be called with the following parameters:
-	   *
-	   *      - `{Object.<string>}` - route parameters extracted from the current
-	   *        `$location.path()` by applying the current route templateUrl.
-	   *      - `{string}` - current `$location.path()`
-	   *      - `{Object}` - current `$location.search()`
-	   *
-	   *      The custom `redirectTo` function is expected to return a string which will be used
-	   *      to update `$location.path()` and `$location.search()`.
-	   *
-	   *    - `[reloadOnSearch=true]` - `{boolean=}` - reload route when only `$location.search()`
-	   *      or `$location.hash()` changes.
-	   *
-	   *      If the option is set to `false` and url in the browser changes, then
-	   *      `$routeUpdate` event is broadcasted on the root scope.
-	   *
-	   *    - `[caseInsensitiveMatch=false]` - `{boolean=}` - match routes without being case sensitive
-	   *
-	   *      If the option is set to `true`, then the particular route can be matched without being
-	   *      case sensitive
-	   *
-	   * @returns {Object} self
-	   *
-	   * @description
-	   * Adds a new route definition to the `$route` service.
-	   */
-	  this.when = function(path, route) {
-	    //copy original route object to preserve params inherited from proto chain
-	    var routeCopy = angular.copy(route);
-	    if (angular.isUndefined(routeCopy.reloadOnSearch)) {
-	      routeCopy.reloadOnSearch = true;
-	    }
-	    if (angular.isUndefined(routeCopy.caseInsensitiveMatch)) {
-	      routeCopy.caseInsensitiveMatch = this.caseInsensitiveMatch;
-	    }
-	    routes[path] = angular.extend(
-	      routeCopy,
-	      path && pathRegExp(path, routeCopy)
-	    );
-
-	    // create redirection for trailing slashes
-	    if (path) {
-	      var redirectPath = (path[path.length - 1] == '/')
-	            ? path.substr(0, path.length - 1)
-	            : path + '/';
-
-	      routes[redirectPath] = angular.extend(
-	        {redirectTo: path},
-	        pathRegExp(redirectPath, routeCopy)
-	      );
-	    }
-
-	    return this;
-	  };
-
-	  /**
-	   * @ngdoc property
-	   * @name $routeProvider#caseInsensitiveMatch
-	   * @description
-	   *
-	   * A boolean property indicating if routes defined
-	   * using this provider should be matched using a case insensitive
-	   * algorithm. Defaults to `false`.
-	   */
-	  this.caseInsensitiveMatch = false;
-
-	   /**
-	    * @param path {string} path
-	    * @param opts {Object} options
-	    * @return {?Object}
-	    *
-	    * @description
-	    * Normalizes the given path, returning a regular expression
-	    * and the original path.
-	    *
-	    * Inspired by pathRexp in visionmedia/express/lib/utils.js.
-	    */
-	  function pathRegExp(path, opts) {
-	    var insensitive = opts.caseInsensitiveMatch,
-	        ret = {
-	          originalPath: path,
-	          regexp: path
-	        },
-	        keys = ret.keys = [];
-
-	    path = path
-	      .replace(/([().])/g, '\\$1')
-	      .replace(/(\/)?:(\w+)([\?\*])?/g, function(_, slash, key, option) {
-	        var optional = option === '?' ? option : null;
-	        var star = option === '*' ? option : null;
-	        keys.push({ name: key, optional: !!optional });
-	        slash = slash || '';
-	        return ''
-	          + (optional ? '' : slash)
-	          + '(?:'
-	          + (optional ? slash : '')
-	          + (star && '(.+?)' || '([^/]+)')
-	          + (optional || '')
-	          + ')'
-	          + (optional || '');
-	      })
-	      .replace(/([\/$\*])/g, '\\$1');
-
-	    ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
-	    return ret;
-	  }
-
-	  /**
-	   * @ngdoc method
-	   * @name $routeProvider#otherwise
-	   *
-	   * @description
-	   * Sets route definition that will be used on route change when no other route definition
-	   * is matched.
-	   *
-	   * @param {Object|string} params Mapping information to be assigned to `$route.current`.
-	   * If called with a string, the value maps to `redirectTo`.
-	   * @returns {Object} self
-	   */
-	  this.otherwise = function(params) {
-	    if (typeof params === 'string') {
-	      params = {redirectTo: params};
-	    }
-	    this.when(null, params);
-	    return this;
-	  };
-
-
-	  this.$get = ['$rootScope',
-	               '$location',
-	               '$routeParams',
-	               '$q',
-	               '$injector',
-	               '$templateRequest',
-	               '$sce',
-	      function($rootScope, $location, $routeParams, $q, $injector, $templateRequest, $sce) {
-
-	    /**
-	     * @ngdoc service
-	     * @name $route
-	     * @requires $location
-	     * @requires $routeParams
-	     *
-	     * @property {Object} current Reference to the current route definition.
-	     * The route definition contains:
-	     *
-	     *   - `controller`: The controller constructor as defined in the route definition.
-	     *   - `locals`: A map of locals which is used by {@link ng.$controller $controller} service for
-	     *     controller instantiation. The `locals` contain
-	     *     the resolved values of the `resolve` map. Additionally the `locals` also contain:
-	     *
-	     *     - `$scope` - The current route scope.
-	     *     - `$template` - The current route template HTML.
-	     *
-	     *     The `locals` will be assigned to the route scope's `$resolve` property. You can override
-	     *     the property name, using `resolveAs` in the route definition. See
-	     *     {@link ngRoute.$routeProvider $routeProvider} for more info.
-	     *
-	     * @property {Object} routes Object with all route configuration Objects as its properties.
-	     *
-	     * @description
-	     * `$route` is used for deep-linking URLs to controllers and views (HTML partials).
-	     * It watches `$location.url()` and tries to map the path to an existing route definition.
-	     *
-	     * Requires the {@link ngRoute `ngRoute`} module to be installed.
-	     *
-	     * You can define routes through {@link ngRoute.$routeProvider $routeProvider}'s API.
-	     *
-	     * The `$route` service is typically used in conjunction with the
-	     * {@link ngRoute.directive:ngView `ngView`} directive and the
-	     * {@link ngRoute.$routeParams `$routeParams`} service.
-	     *
-	     * @example
-	     * This example shows how changing the URL hash causes the `$route` to match a route against the
-	     * URL, and the `ngView` pulls in the partial.
-	     *
-	     * <example name="$route-service" module="ngRouteExample"
-	     *          deps="angular-route.js" fixBase="true">
-	     *   <file name="index.html">
-	     *     <div ng-controller="MainController">
-	     *       Choose:
-	     *       <a href="Book/Moby">Moby</a> |
-	     *       <a href="Book/Moby/ch/1">Moby: Ch1</a> |
-	     *       <a href="Book/Gatsby">Gatsby</a> |
-	     *       <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-	     *       <a href="Book/Scarlet">Scarlet Letter</a><br/>
-	     *
-	     *       <div ng-view></div>
-	     *
-	     *       <hr />
-	     *
-	     *       <pre>$location.path() = {{$location.path()}}</pre>
-	     *       <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
-	     *       <pre>$route.current.params = {{$route.current.params}}</pre>
-	     *       <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
-	     *       <pre>$routeParams = {{$routeParams}}</pre>
-	     *     </div>
-	     *   </file>
-	     *
-	     *   <file name="book.html">
-	     *     controller: {{name}}<br />
-	     *     Book Id: {{params.bookId}}<br />
-	     *   </file>
-	     *
-	     *   <file name="chapter.html">
-	     *     controller: {{name}}<br />
-	     *     Book Id: {{params.bookId}}<br />
-	     *     Chapter Id: {{params.chapterId}}
-	     *   </file>
-	     *
-	     *   <file name="script.js">
-	     *     angular.module('ngRouteExample', ['ngRoute'])
-	     *
-	     *      .controller('MainController', function($scope, $route, $routeParams, $location) {
-	     *          $scope.$route = $route;
-	     *          $scope.$location = $location;
-	     *          $scope.$routeParams = $routeParams;
-	     *      })
-	     *
-	     *      .controller('BookController', function($scope, $routeParams) {
-	     *          $scope.name = "BookController";
-	     *          $scope.params = $routeParams;
-	     *      })
-	     *
-	     *      .controller('ChapterController', function($scope, $routeParams) {
-	     *          $scope.name = "ChapterController";
-	     *          $scope.params = $routeParams;
-	     *      })
-	     *
-	     *     .config(function($routeProvider, $locationProvider) {
-	     *       $routeProvider
-	     *        .when('/Book/:bookId', {
-	     *         templateUrl: 'book.html',
-	     *         controller: 'BookController',
-	     *         resolve: {
-	     *           // I will cause a 1 second delay
-	     *           delay: function($q, $timeout) {
-	     *             var delay = $q.defer();
-	     *             $timeout(delay.resolve, 1000);
-	     *             return delay.promise;
-	     *           }
-	     *         }
-	     *       })
-	     *       .when('/Book/:bookId/ch/:chapterId', {
-	     *         templateUrl: 'chapter.html',
-	     *         controller: 'ChapterController'
-	     *       });
-	     *
-	     *       // configure html5 to get links working on jsfiddle
-	     *       $locationProvider.html5Mode(true);
-	     *     });
-	     *
-	     *   </file>
-	     *
-	     *   <file name="protractor.js" type="protractor">
-	     *     it('should load and compile correct template', function() {
-	     *       element(by.linkText('Moby: Ch1')).click();
-	     *       var content = element(by.css('[ng-view]')).getText();
-	     *       expect(content).toMatch(/controller\: ChapterController/);
-	     *       expect(content).toMatch(/Book Id\: Moby/);
-	     *       expect(content).toMatch(/Chapter Id\: 1/);
-	     *
-	     *       element(by.partialLinkText('Scarlet')).click();
-	     *
-	     *       content = element(by.css('[ng-view]')).getText();
-	     *       expect(content).toMatch(/controller\: BookController/);
-	     *       expect(content).toMatch(/Book Id\: Scarlet/);
-	     *     });
-	     *   </file>
-	     * </example>
-	     */
-
-	    /**
-	     * @ngdoc event
-	     * @name $route#$routeChangeStart
-	     * @eventType broadcast on root scope
-	     * @description
-	     * Broadcasted before a route change. At this  point the route services starts
-	     * resolving all of the dependencies needed for the route change to occur.
-	     * Typically this involves fetching the view template as well as any dependencies
-	     * defined in `resolve` route property. Once  all of the dependencies are resolved
-	     * `$routeChangeSuccess` is fired.
-	     *
-	     * The route change (and the `$location` change that triggered it) can be prevented
-	     * by calling `preventDefault` method of the event. See {@link ng.$rootScope.Scope#$on}
-	     * for more details about event object.
-	     *
-	     * @param {Object} angularEvent Synthetic event object.
-	     * @param {Route} next Future route information.
-	     * @param {Route} current Current route information.
-	     */
-
-	    /**
-	     * @ngdoc event
-	     * @name $route#$routeChangeSuccess
-	     * @eventType broadcast on root scope
-	     * @description
-	     * Broadcasted after a route change has happened successfully.
-	     * The `resolve` dependencies are now available in the `current.locals` property.
-	     *
-	     * {@link ngRoute.directive:ngView ngView} listens for the directive
-	     * to instantiate the controller and render the view.
-	     *
-	     * @param {Object} angularEvent Synthetic event object.
-	     * @param {Route} current Current route information.
-	     * @param {Route|Undefined} previous Previous route information, or undefined if current is
-	     * first route entered.
-	     */
-
-	    /**
-	     * @ngdoc event
-	     * @name $route#$routeChangeError
-	     * @eventType broadcast on root scope
-	     * @description
-	     * Broadcasted if any of the resolve promises are rejected.
-	     *
-	     * @param {Object} angularEvent Synthetic event object
-	     * @param {Route} current Current route information.
-	     * @param {Route} previous Previous route information.
-	     * @param {Route} rejection Rejection of the promise. Usually the error of the failed promise.
-	     */
-
-	    /**
-	     * @ngdoc event
-	     * @name $route#$routeUpdate
-	     * @eventType broadcast on root scope
-	     * @description
-	     * The `reloadOnSearch` property has been set to false, and we are reusing the same
-	     * instance of the Controller.
-	     *
-	     * @param {Object} angularEvent Synthetic event object
-	     * @param {Route} current Current/previous route information.
-	     */
-
-	    var forceReload = false,
-	        preparedRoute,
-	        preparedRouteIsUpdateOnly,
-	        $route = {
-	          routes: routes,
-
-	          /**
-	           * @ngdoc method
-	           * @name $route#reload
-	           *
-	           * @description
-	           * Causes `$route` service to reload the current route even if
-	           * {@link ng.$location $location} hasn't changed.
-	           *
-	           * As a result of that, {@link ngRoute.directive:ngView ngView}
-	           * creates new scope and reinstantiates the controller.
-	           */
-	          reload: function() {
-	            forceReload = true;
-
-	            var fakeLocationEvent = {
-	              defaultPrevented: false,
-	              preventDefault: function fakePreventDefault() {
-	                this.defaultPrevented = true;
-	                forceReload = false;
-	              }
-	            };
-
-	            $rootScope.$evalAsync(function() {
-	              prepareRoute(fakeLocationEvent);
-	              if (!fakeLocationEvent.defaultPrevented) commitRoute();
-	            });
-	          },
-
-	          /**
-	           * @ngdoc method
-	           * @name $route#updateParams
-	           *
-	           * @description
-	           * Causes `$route` service to update the current URL, replacing
-	           * current route parameters with those specified in `newParams`.
-	           * Provided property names that match the route's path segment
-	           * definitions will be interpolated into the location's path, while
-	           * remaining properties will be treated as query params.
-	           *
-	           * @param {!Object<string, string>} newParams mapping of URL parameter names to values
-	           */
-	          updateParams: function(newParams) {
-	            if (this.current && this.current.$$route) {
-	              newParams = angular.extend({}, this.current.params, newParams);
-	              $location.path(interpolate(this.current.$$route.originalPath, newParams));
-	              // interpolate modifies newParams, only query params are left
-	              $location.search(newParams);
-	            } else {
-	              throw $routeMinErr('norout', 'Tried updating route when with no current route');
-	            }
-	          }
-	        };
-
-	    $rootScope.$on('$locationChangeStart', prepareRoute);
-	    $rootScope.$on('$locationChangeSuccess', commitRoute);
-
-	    return $route;
-
-	    /////////////////////////////////////////////////////
-
-	    /**
-	     * @param on {string} current url
-	     * @param route {Object} route regexp to match the url against
-	     * @return {?Object}
-	     *
-	     * @description
-	     * Check if the route matches the current url.
-	     *
-	     * Inspired by match in
-	     * visionmedia/express/lib/router/router.js.
-	     */
-	    function switchRouteMatcher(on, route) {
-	      var keys = route.keys,
-	          params = {};
-
-	      if (!route.regexp) return null;
-
-	      var m = route.regexp.exec(on);
-	      if (!m) return null;
-
-	      for (var i = 1, len = m.length; i < len; ++i) {
-	        var key = keys[i - 1];
-
-	        var val = m[i];
-
-	        if (key && val) {
-	          params[key.name] = val;
-	        }
-	      }
-	      return params;
-	    }
-
-	    function prepareRoute($locationEvent) {
-	      var lastRoute = $route.current;
-
-	      preparedRoute = parseRoute();
-	      preparedRouteIsUpdateOnly = preparedRoute && lastRoute && preparedRoute.$$route === lastRoute.$$route
-	          && angular.equals(preparedRoute.pathParams, lastRoute.pathParams)
-	          && !preparedRoute.reloadOnSearch && !forceReload;
-
-	      if (!preparedRouteIsUpdateOnly && (lastRoute || preparedRoute)) {
-	        if ($rootScope.$broadcast('$routeChangeStart', preparedRoute, lastRoute).defaultPrevented) {
-	          if ($locationEvent) {
-	            $locationEvent.preventDefault();
-	          }
-	        }
-	      }
-	    }
-
-	    function commitRoute() {
-	      var lastRoute = $route.current;
-	      var nextRoute = preparedRoute;
-
-	      if (preparedRouteIsUpdateOnly) {
-	        lastRoute.params = nextRoute.params;
-	        angular.copy(lastRoute.params, $routeParams);
-	        $rootScope.$broadcast('$routeUpdate', lastRoute);
-	      } else if (nextRoute || lastRoute) {
-	        forceReload = false;
-	        $route.current = nextRoute;
-	        if (nextRoute) {
-	          if (nextRoute.redirectTo) {
-	            if (angular.isString(nextRoute.redirectTo)) {
-	              $location.path(interpolate(nextRoute.redirectTo, nextRoute.params)).search(nextRoute.params)
-	                       .replace();
-	            } else {
-	              $location.url(nextRoute.redirectTo(nextRoute.pathParams, $location.path(), $location.search()))
-	                       .replace();
-	            }
-	          }
-	        }
-
-	        $q.when(nextRoute).
-	          then(function() {
-	            if (nextRoute) {
-	              var locals = angular.extend({}, nextRoute.resolve),
-	                  template, templateUrl;
-
-	              angular.forEach(locals, function(value, key) {
-	                locals[key] = angular.isString(value) ?
-	                    $injector.get(value) : $injector.invoke(value, null, null, key);
-	              });
-
-	              if (angular.isDefined(template = nextRoute.template)) {
-	                if (angular.isFunction(template)) {
-	                  template = template(nextRoute.params);
-	                }
-	              } else if (angular.isDefined(templateUrl = nextRoute.templateUrl)) {
-	                if (angular.isFunction(templateUrl)) {
-	                  templateUrl = templateUrl(nextRoute.params);
-	                }
-	                if (angular.isDefined(templateUrl)) {
-	                  nextRoute.loadedTemplateUrl = $sce.valueOf(templateUrl);
-	                  template = $templateRequest(templateUrl);
-	                }
-	              }
-	              if (angular.isDefined(template)) {
-	                locals['$template'] = template;
-	              }
-	              return $q.all(locals);
-	            }
-	          }).
-	          then(function(locals) {
-	            // after route change
-	            if (nextRoute == $route.current) {
-	              if (nextRoute) {
-	                nextRoute.locals = locals;
-	                angular.copy(nextRoute.params, $routeParams);
-	              }
-	              $rootScope.$broadcast('$routeChangeSuccess', nextRoute, lastRoute);
-	            }
-	          }, function(error) {
-	            if (nextRoute == $route.current) {
-	              $rootScope.$broadcast('$routeChangeError', nextRoute, lastRoute, error);
-	            }
-	          });
-	      }
-	    }
-
-
-	    /**
-	     * @returns {Object} the current active route, by matching it against the URL
-	     */
-	    function parseRoute() {
-	      // Match a route
-	      var params, match;
-	      angular.forEach(routes, function(route, path) {
-	        if (!match && (params = switchRouteMatcher($location.path(), route))) {
-	          match = inherit(route, {
-	            params: angular.extend({}, $location.search(), params),
-	            pathParams: params});
-	          match.$$route = route;
-	        }
-	      });
-	      // No route matched; fallback to "otherwise" route
-	      return match || routes[null] && inherit(routes[null], {params: {}, pathParams:{}});
-	    }
-
-	    /**
-	     * @returns {string} interpolation of the redirect path with the parameters
-	     */
-	    function interpolate(string, params) {
-	      var result = [];
-	      angular.forEach((string || '').split(':'), function(segment, i) {
-	        if (i === 0) {
-	          result.push(segment);
-	        } else {
-	          var segmentMatch = segment.match(/(\w+)(?:[?*])?(.*)/);
-	          var key = segmentMatch[1];
-	          result.push(params[key]);
-	          result.push(segmentMatch[2] || '');
-	          delete params[key];
-	        }
-	      });
-	      return result.join('');
-	    }
-	  }];
-	}
-
-	ngRouteModule.provider('$routeParams', $RouteParamsProvider);
-
-
-	/**
-	 * @ngdoc service
-	 * @name $routeParams
-	 * @requires $route
-	 *
-	 * @description
-	 * The `$routeParams` service allows you to retrieve the current set of route parameters.
-	 *
-	 * Requires the {@link ngRoute `ngRoute`} module to be installed.
-	 *
-	 * The route parameters are a combination of {@link ng.$location `$location`}'s
-	 * {@link ng.$location#search `search()`} and {@link ng.$location#path `path()`}.
-	 * The `path` parameters are extracted when the {@link ngRoute.$route `$route`} path is matched.
-	 *
-	 * In case of parameter name collision, `path` params take precedence over `search` params.
-	 *
-	 * The service guarantees that the identity of the `$routeParams` object will remain unchanged
-	 * (but its properties will likely change) even when a route change occurs.
-	 *
-	 * Note that the `$routeParams` are only updated *after* a route change completes successfully.
-	 * This means that you cannot rely on `$routeParams` being correct in route resolve functions.
-	 * Instead you can use `$route.current.params` to access the new route's parameters.
-	 *
-	 * @example
-	 * ```js
-	 *  // Given:
-	 *  // URL: http://server.com/index.html#/Chapter/1/Section/2?search=moby
-	 *  // Route: /Chapter/:chapterId/Section/:sectionId
-	 *  //
-	 *  // Then
-	 *  $routeParams ==> {chapterId:'1', sectionId:'2', search:'moby'}
-	 * ```
-	 */
-	function $RouteParamsProvider() {
-	  this.$get = function() { return {}; };
-	}
-
-	ngRouteModule.directive('ngView', ngViewFactory);
-	ngRouteModule.directive('ngView', ngViewFillContentFactory);
-
-
-	/**
-	 * @ngdoc directive
-	 * @name ngView
-	 * @restrict ECA
-	 *
-	 * @description
-	 * # Overview
-	 * `ngView` is a directive that complements the {@link ngRoute.$route $route} service by
-	 * including the rendered template of the current route into the main layout (`index.html`) file.
-	 * Every time the current route changes, the included view changes with it according to the
-	 * configuration of the `$route` service.
-	 *
-	 * Requires the {@link ngRoute `ngRoute`} module to be installed.
-	 *
-	 * @animations
-	 * enter - animation is used to bring new content into the browser.
-	 * leave - animation is used to animate existing content away.
-	 *
-	 * The enter and leave animation occur concurrently.
-	 *
-	 * @scope
-	 * @priority 400
-	 * @param {string=} onload Expression to evaluate whenever the view updates.
-	 *
-	 * @param {string=} autoscroll Whether `ngView` should call {@link ng.$anchorScroll
-	 *                  $anchorScroll} to scroll the viewport after the view is updated.
-	 *
-	 *                  - If the attribute is not set, disable scrolling.
-	 *                  - If the attribute is set without value, enable scrolling.
-	 *                  - Otherwise enable scrolling only if the `autoscroll` attribute value evaluated
-	 *                    as an expression yields a truthy value.
-	 * @example
-	    <example name="ngView-directive" module="ngViewExample"
-	             deps="angular-route.js;angular-animate.js"
-	             animations="true" fixBase="true">
-	      <file name="index.html">
-	        <div ng-controller="MainCtrl as main">
-	          Choose:
-	          <a href="Book/Moby">Moby</a> |
-	          <a href="Book/Moby/ch/1">Moby: Ch1</a> |
-	          <a href="Book/Gatsby">Gatsby</a> |
-	          <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-	          <a href="Book/Scarlet">Scarlet Letter</a><br/>
-
-	          <div class="view-animate-container">
-	            <div ng-view class="view-animate"></div>
-	          </div>
-	          <hr />
-
-	          <pre>$location.path() = {{main.$location.path()}}</pre>
-	          <pre>$route.current.templateUrl = {{main.$route.current.templateUrl}}</pre>
-	          <pre>$route.current.params = {{main.$route.current.params}}</pre>
-	          <pre>$routeParams = {{main.$routeParams}}</pre>
-	        </div>
-	      </file>
-
-	      <file name="book.html">
-	        <div>
-	          controller: {{book.name}}<br />
-	          Book Id: {{book.params.bookId}}<br />
-	        </div>
-	      </file>
-
-	      <file name="chapter.html">
-	        <div>
-	          controller: {{chapter.name}}<br />
-	          Book Id: {{chapter.params.bookId}}<br />
-	          Chapter Id: {{chapter.params.chapterId}}
-	        </div>
-	      </file>
-
-	      <file name="animations.css">
-	        .view-animate-container {
-	          position:relative;
-	          height:100px!important;
-	          background:white;
-	          border:1px solid black;
-	          height:40px;
-	          overflow:hidden;
-	        }
-
-	        .view-animate {
-	          padding:10px;
-	        }
-
-	        .view-animate.ng-enter, .view-animate.ng-leave {
-	          transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
-
-	          display:block;
-	          width:100%;
-	          border-left:1px solid black;
-
-	          position:absolute;
-	          top:0;
-	          left:0;
-	          right:0;
-	          bottom:0;
-	          padding:10px;
-	        }
-
-	        .view-animate.ng-enter {
-	          left:100%;
-	        }
-	        .view-animate.ng-enter.ng-enter-active {
-	          left:0;
-	        }
-	        .view-animate.ng-leave.ng-leave-active {
-	          left:-100%;
-	        }
-	      </file>
-
-	      <file name="script.js">
-	        angular.module('ngViewExample', ['ngRoute', 'ngAnimate'])
-	          .config(['$routeProvider', '$locationProvider',
-	            function($routeProvider, $locationProvider) {
-	              $routeProvider
-	                .when('/Book/:bookId', {
-	                  templateUrl: 'book.html',
-	                  controller: 'BookCtrl',
-	                  controllerAs: 'book'
-	                })
-	                .when('/Book/:bookId/ch/:chapterId', {
-	                  templateUrl: 'chapter.html',
-	                  controller: 'ChapterCtrl',
-	                  controllerAs: 'chapter'
-	                });
-
-	              $locationProvider.html5Mode(true);
-	          }])
-	          .controller('MainCtrl', ['$route', '$routeParams', '$location',
-	            function($route, $routeParams, $location) {
-	              this.$route = $route;
-	              this.$location = $location;
-	              this.$routeParams = $routeParams;
-	          }])
-	          .controller('BookCtrl', ['$routeParams', function($routeParams) {
-	            this.name = "BookCtrl";
-	            this.params = $routeParams;
-	          }])
-	          .controller('ChapterCtrl', ['$routeParams', function($routeParams) {
-	            this.name = "ChapterCtrl";
-	            this.params = $routeParams;
-	          }]);
-
-	      </file>
-
-	      <file name="protractor.js" type="protractor">
-	        it('should load and compile correct template', function() {
-	          element(by.linkText('Moby: Ch1')).click();
-	          var content = element(by.css('[ng-view]')).getText();
-	          expect(content).toMatch(/controller\: ChapterCtrl/);
-	          expect(content).toMatch(/Book Id\: Moby/);
-	          expect(content).toMatch(/Chapter Id\: 1/);
-
-	          element(by.partialLinkText('Scarlet')).click();
-
-	          content = element(by.css('[ng-view]')).getText();
-	          expect(content).toMatch(/controller\: BookCtrl/);
-	          expect(content).toMatch(/Book Id\: Scarlet/);
-	        });
-	      </file>
-	    </example>
-	 */
-
-
-	/**
-	 * @ngdoc event
-	 * @name ngView#$viewContentLoaded
-	 * @eventType emit on the current ngView scope
-	 * @description
-	 * Emitted every time the ngView content is reloaded.
-	 */
-	ngViewFactory.$inject = ['$route', '$anchorScroll', '$animate'];
-	function ngViewFactory($route, $anchorScroll, $animate) {
-	  return {
-	    restrict: 'ECA',
-	    terminal: true,
-	    priority: 400,
-	    transclude: 'element',
-	    link: function(scope, $element, attr, ctrl, $transclude) {
-	        var currentScope,
-	            currentElement,
-	            previousLeaveAnimation,
-	            autoScrollExp = attr.autoscroll,
-	            onloadExp = attr.onload || '';
-
-	        scope.$on('$routeChangeSuccess', update);
-	        update();
-
-	        function cleanupLastView() {
-	          if (previousLeaveAnimation) {
-	            $animate.cancel(previousLeaveAnimation);
-	            previousLeaveAnimation = null;
-	          }
-
-	          if (currentScope) {
-	            currentScope.$destroy();
-	            currentScope = null;
-	          }
-	          if (currentElement) {
-	            previousLeaveAnimation = $animate.leave(currentElement);
-	            previousLeaveAnimation.then(function() {
-	              previousLeaveAnimation = null;
-	            });
-	            currentElement = null;
-	          }
-	        }
-
-	        function update() {
-	          var locals = $route.current && $route.current.locals,
-	              template = locals && locals.$template;
-
-	          if (angular.isDefined(template)) {
-	            var newScope = scope.$new();
-	            var current = $route.current;
-
-	            // Note: This will also link all children of ng-view that were contained in the original
-	            // html. If that content contains controllers, ... they could pollute/change the scope.
-	            // However, using ng-view on an element with additional content does not make sense...
-	            // Note: We can't remove them in the cloneAttchFn of $transclude as that
-	            // function is called before linking the content, which would apply child
-	            // directives to non existing elements.
-	            var clone = $transclude(newScope, function(clone) {
-	              $animate.enter(clone, null, currentElement || $element).then(function onNgViewEnter() {
-	                if (angular.isDefined(autoScrollExp)
-	                  && (!autoScrollExp || scope.$eval(autoScrollExp))) {
-	                  $anchorScroll();
-	                }
-	              });
-	              cleanupLastView();
-	            });
-
-	            currentElement = clone;
-	            currentScope = current.scope = newScope;
-	            currentScope.$emit('$viewContentLoaded');
-	            currentScope.$eval(onloadExp);
-	          } else {
-	            cleanupLastView();
-	          }
-	        }
-	    }
-	  };
-	}
-
-	// This directive is called during the $transclude call of the first `ngView` directive.
-	// It will replace and compile the content of the element with the loaded template.
-	// We need this directive so that the element content is already filled when
-	// the link function of another directive on the same element as ngView
-	// is called.
-	ngViewFillContentFactory.$inject = ['$compile', '$controller', '$route'];
-	function ngViewFillContentFactory($compile, $controller, $route) {
-	  return {
-	    restrict: 'ECA',
-	    priority: -400,
-	    link: function(scope, $element) {
-	      var current = $route.current,
-	          locals = current.locals;
-
-	      $element.html(locals.$template);
-
-	      var link = $compile($element.contents());
-
-	      if (current.controller) {
-	        locals.$scope = scope;
-	        var controller = $controller(current.controller, locals);
-	        if (current.controllerAs) {
-	          scope[current.controllerAs] = controller;
-	        }
-	        $element.data('$ngControllerController', controller);
-	        $element.children().data('$ngControllerController', controller);
-	      }
-	      scope[current.resolveAs || '$resolve'] = locals;
-
-	      link(scope);
-	    }
-	  };
-	}
-
-
-	})(window, window.angular);
-
-
-/***/ },
-/* 5 */
 /***/ function(module, exports) {
 
 	module.exports = exports = {
@@ -31857,7 +30824,7 @@
 
 
 /***/ },
-/* 6 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -41030,21 +39997,21 @@
 	}(window, document));
 
 /***/ },
-/* 7 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var makeClient = __webpack_require__(8);
-	var xtend = __webpack_require__(64);
-	var MapboxGeocoder = __webpack_require__(65);
-	var MapboxSurface = __webpack_require__(66);
-	var MapboxDirections = __webpack_require__(69);
-	var MapboxUploads = __webpack_require__(70);
-	var MapboxMatching = __webpack_require__(71);
-	var MapboxDatasets = __webpack_require__(73);
-	var MapboxDistance = __webpack_require__(75);
-	var MapboxTilestats = __webpack_require__(76);
+	var makeClient = __webpack_require__(6);
+	var xtend = __webpack_require__(62);
+	var MapboxGeocoder = __webpack_require__(63);
+	var MapboxSurface = __webpack_require__(64);
+	var MapboxDirections = __webpack_require__(67);
+	var MapboxUploads = __webpack_require__(68);
+	var MapboxMatching = __webpack_require__(69);
+	var MapboxDatasets = __webpack_require__(71);
+	var MapboxDistance = __webpack_require__(73);
+	var MapboxTilestats = __webpack_require__(74);
 
 	/**
 	 * The JavaScript API to Mapbox services
@@ -41083,15 +40050,15 @@
 
 
 /***/ },
-/* 8 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9);
-	var constants = __webpack_require__(14);
-	var client = __webpack_require__(15);
-	var getUser = __webpack_require__(62);
+	var assert = __webpack_require__(7);
+	var constants = __webpack_require__(12);
+	var client = __webpack_require__(13);
+	var getUser = __webpack_require__(60);
 
 	/**
 	 * Services all have the same constructor pattern: you initialize them
@@ -41145,7 +40112,7 @@
 
 
 /***/ },
-/* 9 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -41175,7 +40142,7 @@
 	// when used in node, this will actually load the util module we depend on
 	// versus loading the builtin util module as happens otherwise
 	// this is a bug in node module loading as far as I am concerned
-	var util = __webpack_require__(10);
+	var util = __webpack_require__(8);
 
 	var pSlice = Array.prototype.slice;
 	var hasOwn = Object.prototype.hasOwnProperty;
@@ -41510,7 +40477,7 @@
 
 
 /***/ },
-/* 10 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -42038,7 +41005,7 @@
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(12);
+	exports.isBuffer = __webpack_require__(10);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -42082,7 +41049,7 @@
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(13);
+	exports.inherits = __webpack_require__(11);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -42100,10 +41067,10 @@
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(11)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(9)))
 
 /***/ },
-/* 11 */
+/* 9 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -42200,7 +41167,7 @@
 
 
 /***/ },
-/* 12 */
+/* 10 */
 /***/ function(module, exports) {
 
 	module.exports = function isBuffer(arg) {
@@ -42211,7 +41178,7 @@
 	}
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports) {
 
 	if (typeof Object.create === 'function') {
@@ -42240,7 +41207,7 @@
 
 
 /***/ },
-/* 14 */
+/* 12 */
 /***/ function(module, exports) {
 
 	// We keep all of the constants that declare endpoints in one
@@ -42267,30 +41234,30 @@
 
 
 /***/ },
-/* 15 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var rest = __webpack_require__(16);
-	var callbackify = __webpack_require__(44);
+	var rest = __webpack_require__(14);
+	var callbackify = __webpack_require__(42);
 
 	// rest.js client with MIME support
 	module.exports = function(config) {
 	  return rest
-	    .wrap(__webpack_require__(46))
-	    .wrap(__webpack_require__(47), { prefix: config.endpoint })
-	    .wrap(__webpack_require__(48), { mime: 'application/json' })
-	    .wrap(__webpack_require__(61), {
+	    .wrap(__webpack_require__(44))
+	    .wrap(__webpack_require__(45), { prefix: config.endpoint })
+	    .wrap(__webpack_require__(46), { mime: 'application/json' })
+	    .wrap(__webpack_require__(59), {
 	      params: { access_token: config.accessToken }
 	    })
-	    .wrap(__webpack_require__(52))
+	    .wrap(__webpack_require__(50))
 	    .wrap(callbackify);
 	};
 
 
 /***/ },
-/* 16 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -42305,8 +41272,8 @@
 
 		!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
 
-			var rest = __webpack_require__(17),
-			    browser = __webpack_require__(20);
+			var rest = __webpack_require__(15),
+			    browser = __webpack_require__(18);
 
 			rest.setPlatformDefaultClient(browser);
 
@@ -42315,13 +41282,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 17 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -42396,7 +41363,7 @@
 
 			var client, target, platformDefault;
 
-			client = __webpack_require__(18);
+			client = __webpack_require__(16);
 
 			/**
 			 * Make a request with the default client
@@ -42445,13 +41412,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 18 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -42515,20 +41482,20 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 19 */
+/* 17 */
 /***/ function(module, exports) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 20 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -42545,11 +41512,11 @@
 
 			var when, UrlBuilder, normalizeHeaderName, responsePromise, client, headerSplitRE;
 
-			when = __webpack_require__(21);
-			UrlBuilder = __webpack_require__(40);
-			normalizeHeaderName = __webpack_require__(42);
-			responsePromise = __webpack_require__(43);
-			client = __webpack_require__(18);
+			when = __webpack_require__(19);
+			UrlBuilder = __webpack_require__(38);
+			normalizeHeaderName = __webpack_require__(40);
+			responsePromise = __webpack_require__(41);
+			client = __webpack_require__(16);
 
 			// according to the spec, the line break is '\r\n', but doesn't hold true in practice
 			headerSplitRE = /[\r|\n]+/;
@@ -42701,14 +41668,14 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19),
+		__webpack_require__(17),
 		typeof window !== 'undefined' ? window : void 0
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 21 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -42722,24 +41689,24 @@
 	(function(define) { 'use strict';
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
 
-		var timed = __webpack_require__(22);
-		var array = __webpack_require__(26);
-		var flow = __webpack_require__(29);
-		var fold = __webpack_require__(30);
-		var inspect = __webpack_require__(31);
-		var generate = __webpack_require__(32);
-		var progress = __webpack_require__(33);
-		var withThis = __webpack_require__(34);
-		var unhandledRejection = __webpack_require__(35);
-		var TimeoutError = __webpack_require__(25);
+		var timed = __webpack_require__(20);
+		var array = __webpack_require__(24);
+		var flow = __webpack_require__(27);
+		var fold = __webpack_require__(28);
+		var inspect = __webpack_require__(29);
+		var generate = __webpack_require__(30);
+		var progress = __webpack_require__(31);
+		var withThis = __webpack_require__(32);
+		var unhandledRejection = __webpack_require__(33);
+		var TimeoutError = __webpack_require__(23);
 
 		var Promise = [array, flow, fold, generate, progress,
 			inspect, withThis, timed, unhandledRejection]
 			.reduce(function(Promise, feature) {
 				return feature(Promise);
-			}, __webpack_require__(37));
+			}, __webpack_require__(35));
 
-		var apply = __webpack_require__(28)(Promise);
+		var apply = __webpack_require__(26)(Promise);
 
 		// Public API
 
@@ -42938,11 +41905,11 @@
 
 		return when;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	})(__webpack_require__(19));
+	})(__webpack_require__(17));
 
 
 /***/ },
-/* 22 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -42952,8 +41919,8 @@
 	(function(define) { 'use strict';
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function(require) {
 
-		var env = __webpack_require__(23);
-		var TimeoutError = __webpack_require__(25);
+		var env = __webpack_require__(21);
+		var TimeoutError = __webpack_require__(23);
 
 		function setTimeout(f, ms, x, y) {
 			return env.setTimer(function() {
@@ -43022,11 +41989,11 @@
 		};
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 23 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;var require;/* WEBPACK VAR INJECTION */(function(process) {/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43060,7 +42027,7 @@
 
 		} else if (!capturedSetTimeout) { // vert.x
 			var vertxRequire = require;
-			var vertx = __webpack_require__(24);
+			var vertx = __webpack_require__(22);
 			setTimer = function (f, ms) { return vertx.setTimer(ms, f); };
 			clearTimer = vertx.cancelTimer;
 			asap = vertx.runOnLoop || vertx.runOnContext;
@@ -43101,18 +42068,18 @@
 			};
 		}
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ },
-/* 24 */
+/* 22 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 25 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43141,10 +42108,10 @@
 
 		return TimeoutError;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 /***/ },
-/* 26 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43154,8 +42121,8 @@
 	(function(define) { 'use strict';
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function(require) {
 
-		var state = __webpack_require__(27);
-		var applier = __webpack_require__(28);
+		var state = __webpack_require__(25);
+		var applier = __webpack_require__(26);
 
 		return function array(Promise) {
 
@@ -43435,11 +42402,11 @@
 		};
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 27 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43476,11 +42443,11 @@
 		}
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 28 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43535,13 +42502,13 @@
 		}
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 
 
 /***/ },
-/* 29 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43703,11 +42670,11 @@
 		}
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 30 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43736,11 +42703,11 @@
 		};
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 31 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43750,7 +42717,7 @@
 	(function(define) { 'use strict';
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function(require) {
 
-		var inspect = __webpack_require__(27).inspect;
+		var inspect = __webpack_require__(25).inspect;
 
 		return function inspection(Promise) {
 
@@ -43762,11 +42729,11 @@
 		};
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 32 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43833,11 +42800,11 @@
 		};
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 33 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43863,11 +42830,11 @@
 		};
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 34 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43906,12 +42873,12 @@
 		};
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 
 /***/ },
-/* 35 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -43921,8 +42888,8 @@
 	(function(define) { 'use strict';
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function(require) {
 
-		var setTimer = __webpack_require__(23).setTimer;
-		var format = __webpack_require__(36);
+		var setTimer = __webpack_require__(21).setTimer;
+		var format = __webpack_require__(34);
 
 		return function unhandledRejection(Promise) {
 
@@ -43999,11 +42966,11 @@
 		function noop() {}
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 36 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -44061,11 +43028,11 @@
 		}
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 37 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -44075,20 +43042,20 @@
 	(function(define) { 'use strict';
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
 
-		var makePromise = __webpack_require__(38);
-		var Scheduler = __webpack_require__(39);
-		var async = __webpack_require__(23).asap;
+		var makePromise = __webpack_require__(36);
+		var Scheduler = __webpack_require__(37);
+		var async = __webpack_require__(21).asap;
 
 		return makePromise({
 			scheduler: new Scheduler(async)
 		});
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	})(__webpack_require__(19));
+	})(__webpack_require__(17));
 
 
 /***/ },
-/* 38 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process) {/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -45017,12 +43984,12 @@
 			return Promise;
 		};
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ },
-/* 39 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/** @license MIT License (c) copyright 2010-2014 original author or authors */
@@ -45104,11 +44071,11 @@
 		return Scheduler;
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	}(__webpack_require__(19)));
+	}(__webpack_require__(17)));
 
 
 /***/ },
-/* 40 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45127,7 +44094,7 @@
 
 			var mixin, origin, urlRE, absoluteUrlRE, fullyQualifiedUrlRE;
 
-			mixin = __webpack_require__(41);
+			mixin = __webpack_require__(39);
 
 			urlRE = /([a-z][a-z0-9\+\-\.]*:)\/\/([^@]+@)?(([^:\/]+)(:([0-9]+))?)?(\/[^?#]*)?(\?[^#]*)?(#\S*)?/i;
 			absoluteUrlRE = /^([a-z][a-z0-9\-\+\.]*:\/\/|\/)/i;
@@ -45336,14 +44303,14 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19),
+		__webpack_require__(17),
 		typeof window !== 'undefined' ? window.location : void 0
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 41 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45391,13 +44358,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 42 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45435,13 +44402,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 43 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45456,8 +44423,8 @@
 
 		!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
 
-			var when = __webpack_require__(21),
-				normalizeHeaderName = __webpack_require__(42);
+			var when = __webpack_require__(19),
+				normalizeHeaderName = __webpack_require__(40);
 
 			function property(promise, name) {
 				return promise.then(
@@ -45581,18 +44548,18 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 44 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var interceptor = __webpack_require__(45);
+	var interceptor = __webpack_require__(43);
 
 	var callbackify = interceptor({
 	  success: function (response) {
@@ -45623,7 +44590,7 @@
 
 
 /***/ },
-/* 45 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45640,11 +44607,11 @@
 
 			var defaultClient, mixin, responsePromise, client, when;
 
-			defaultClient = __webpack_require__(17);
-			mixin = __webpack_require__(41);
-			responsePromise = __webpack_require__(43);
-			client = __webpack_require__(18);
-			when = __webpack_require__(21);
+			defaultClient = __webpack_require__(15);
+			mixin = __webpack_require__(39);
+			responsePromise = __webpack_require__(41);
+			client = __webpack_require__(16);
+			when = __webpack_require__(19);
 
 			/**
 			 * Interceptors have the ability to intercept the request and/org response
@@ -45788,13 +44755,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 46 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45811,8 +44778,8 @@
 
 			var interceptor, when;
 
-			interceptor = __webpack_require__(45);
-			when = __webpack_require__(21);
+			interceptor = __webpack_require__(43);
+			when = __webpack_require__(19);
 
 			/**
 			 * Rejects the response promise based on the status code.
@@ -45841,13 +44808,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 47 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45864,8 +44831,8 @@
 
 			var interceptor, UrlBuilder;
 
-			interceptor = __webpack_require__(45);
-			UrlBuilder = __webpack_require__(40);
+			interceptor = __webpack_require__(43);
+			UrlBuilder = __webpack_require__(38);
 
 			function startsWith(str, prefix) {
 				return str.indexOf(prefix) === 0;
@@ -45906,13 +44873,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 48 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -45929,10 +44896,10 @@
 
 			var interceptor, mime, registry, noopConverter, when;
 
-			interceptor = __webpack_require__(45);
-			mime = __webpack_require__(49);
-			registry = __webpack_require__(50);
-			when = __webpack_require__(21);
+			interceptor = __webpack_require__(43);
+			mime = __webpack_require__(47);
+			registry = __webpack_require__(48);
+			when = __webpack_require__(19);
 
 			noopConverter = {
 				read: function (obj) { return obj; },
@@ -46022,13 +44989,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 49 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46081,13 +45048,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 50 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46104,8 +45071,8 @@
 
 			var mime, when, registry;
 
-			mime = __webpack_require__(49);
-			when = __webpack_require__(21);
+			mime = __webpack_require__(47);
+			when = __webpack_require__(19);
 
 			function Registry(mimes) {
 
@@ -46189,11 +45156,11 @@
 			registry = new Registry({});
 
 			// include provided serializers
-			registry.register('application/hal', __webpack_require__(51));
-			registry.register('application/json', __webpack_require__(57));
-			registry.register('application/x-www-form-urlencoded', __webpack_require__(58));
-			registry.register('multipart/form-data', __webpack_require__(59));
-			registry.register('text/plain', __webpack_require__(60));
+			registry.register('application/hal', __webpack_require__(49));
+			registry.register('application/json', __webpack_require__(55));
+			registry.register('application/x-www-form-urlencoded', __webpack_require__(56));
+			registry.register('multipart/form-data', __webpack_require__(57));
+			registry.register('text/plain', __webpack_require__(58));
 
 			registry.register('+json', registry.delegate('application/json'));
 
@@ -46202,13 +45169,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 51 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46225,12 +45192,12 @@
 
 			var pathPrefix, template, find, lazyPromise, responsePromise, when;
 
-			pathPrefix = __webpack_require__(47);
-			template = __webpack_require__(52);
-			find = __webpack_require__(55);
-			lazyPromise = __webpack_require__(56);
-			responsePromise = __webpack_require__(43);
-			when = __webpack_require__(21);
+			pathPrefix = __webpack_require__(45);
+			template = __webpack_require__(50);
+			find = __webpack_require__(53);
+			lazyPromise = __webpack_require__(54);
+			responsePromise = __webpack_require__(41);
+			when = __webpack_require__(19);
 
 			function defineProperty(obj, name, value) {
 				Object.defineProperty(obj, name, {
@@ -46347,13 +45314,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 52 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46370,9 +45337,9 @@
 
 			var interceptor, uriTemplate, mixin;
 
-			interceptor = __webpack_require__(45);
-			uriTemplate = __webpack_require__(53);
-			mixin = __webpack_require__(41);
+			interceptor = __webpack_require__(43);
+			uriTemplate = __webpack_require__(51);
+			mixin = __webpack_require__(39);
 
 			/**
 			 * Applies request params to the path as a URI Template
@@ -46407,13 +45374,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 53 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46432,7 +45399,7 @@
 
 			var uriEncoder, operations, prefixRE;
 
-			uriEncoder = __webpack_require__(54);
+			uriEncoder = __webpack_require__(52);
 
 			prefixRE = /^([^:]*):([0-9]+)$/;
 			operations = {
@@ -46585,13 +45552,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 54 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46770,13 +45737,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 55 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46817,13 +45784,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 56 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46840,7 +45807,7 @@
 
 			var when;
 
-			when = __webpack_require__(21);
+			when = __webpack_require__(19);
 
 			/**
 			 * Create a promise whose work is started only when a handler is registered.
@@ -46878,13 +45845,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 57 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -46931,13 +45898,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 58 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -47027,13 +45994,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 59 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -47106,13 +46073,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 60 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -47141,13 +46108,13 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 61 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -47164,8 +46131,8 @@
 
 			var interceptor, mixinUtil, defaulter;
 
-			interceptor = __webpack_require__(45);
-			mixinUtil = __webpack_require__(41);
+			interceptor = __webpack_require__(43);
+			mixinUtil = __webpack_require__(39);
 
 			defaulter = (function () {
 
@@ -47226,18 +46193,18 @@
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 	}(
-		__webpack_require__(19)
+		__webpack_require__(17)
 		// Boilerplate for AMD and Node
 	));
 
 
 /***/ },
-/* 62 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var atob = __webpack_require__(63);
+	var atob = __webpack_require__(61);
 
 	/**
 	 * Access tokens actually are data, and using them we can derive
@@ -47273,10 +46240,10 @@
 
 	module.exports = getUser;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ },
-/* 63 */
+/* 61 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -47287,7 +46254,7 @@
 
 
 /***/ },
-/* 64 */
+/* 62 */
 /***/ function(module, exports) {
 
 	module.exports = extend
@@ -47310,14 +46277,14 @@
 
 
 /***/ },
-/* 65 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var MapboxGeocoder = makeService('MapboxGeocoder');
 
@@ -47494,15 +46461,15 @@
 
 
 /***/ },
-/* 66 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  formatPoints = __webpack_require__(67),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  formatPoints = __webpack_require__(65),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var MapboxSurface = makeService('MapboxSurface');
 
@@ -47596,12 +46563,12 @@
 
 
 /***/ },
-/* 67 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assertLocation = __webpack_require__(68);
+	var assertLocation = __webpack_require__(66);
 
 	/**
 	 * Format waypionts in a way that's friendly to the directions and surface
@@ -47624,12 +46591,12 @@
 
 
 /***/ },
-/* 68 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9);
+	var assert = __webpack_require__(7);
 
 	/**
 	 * Given an object that should be a location, ensure that it has
@@ -47653,15 +46620,15 @@
 
 
 /***/ },
-/* 69 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  formatPoints = __webpack_require__(67),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  formatPoints = __webpack_require__(65),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var MapboxDirections = makeService('MapboxDirections');
 
@@ -47783,14 +46750,14 @@
 
 
 /***/ },
-/* 70 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var Uploads = module.exports = makeService('MapboxUploads');
 
@@ -48008,15 +46975,15 @@
 
 
 /***/ },
-/* 71 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  geojsonhint = __webpack_require__(72),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  geojsonhint = __webpack_require__(70),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var MapboxMatching = makeService('MapboxMatching');
 
@@ -48128,7 +47095,7 @@
 
 
 /***/ },
-/* 72 */
+/* 70 */
 /***/ function(module, exports) {
 
 	/**
@@ -48447,16 +47414,16 @@
 
 
 /***/ },
-/* 73 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  geojsonhint = __webpack_require__(72),
-	  hat = __webpack_require__(74),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  geojsonhint = __webpack_require__(70),
+	  hat = __webpack_require__(72),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var Datasets = module.exports = makeService('MapboxDatasets');
 
@@ -49014,7 +47981,7 @@
 
 
 /***/ },
-/* 74 */
+/* 72 */
 /***/ function(module, exports) {
 
 	var hat = module.exports = function (bits, base) {
@@ -49082,14 +48049,14 @@
 
 
 /***/ },
-/* 75 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var MapboxDistance = makeService('MapboxDistance');
 
@@ -49180,14 +48147,14 @@
 
 
 /***/ },
-/* 76 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assert = __webpack_require__(9),
-	  makeService = __webpack_require__(8),
-	  constants = __webpack_require__(14);
+	var assert = __webpack_require__(7),
+	  makeService = __webpack_require__(6),
+	  constants = __webpack_require__(12);
 
 	var Tilestats = module.exports = makeService('MapboxTilestats');
 
@@ -49431,111 +48398,11 @@
 
 
 /***/ },
-/* 77 */
-/***/ function(module, exports) {
-
-	// For emitting events
-	angular.module('Factory', [])
-	  .factory('EE', function($rootScope) {
-	    return {
-	      emit: function(event, data) {
-	        $rootScope.$broadcast(event, data);
-	      }
-	    }
-	  })
-	  // Handles Pin Requests
-	  .factory('Pin', function($http) {
-	    return {
-	      loadUserPins: function() {
-	        return $http.get('/pins/all');
-	      },
-	      createPin: function(pinData) {
-	        return $http.post('/pins/new', pinData);
-	      },
-	      deletePin: function(pinId) {
-	        return $http.delete('/pins/' + pinId + '/delete');
-	      }
-	    }
-	  })
-	  .factory('Comment', ['$http', function($http){
-	    return {
-	      baseUrl: '/comments',
-	      getComments: function(pinId){
-	        return $http.get(this.baseUrl + '/' + pinId);
-	      },
-	      postComment: function(newComment, pinId) {
-	        return $http.post(this.baseUrl + '/' + pinId + '/new', newComment);
-	      }
-	    }
-	  }])
-	  // Handles searching
-	  .factory('Search', function($http) {
-	    return {
-	      baseUrl: '/pins/search',
-	      query: function(query) {
-	        return $http.get(this.baseUrl + '/' + query);
-	      }
-	    }
-	  })
-	  // Handles Auth
-	  .factory('AuthFactory', function($http) {
-	    return {
-	      login: function(data) {
-
-	        var headerData = data.email + ':' + data.password;
-	        var headerData = btoa(headerData);
-
-	        return $http({
-	          method: 'GET',
-	          url: '/auth/login',
-	          headers: {
-	            authorization: 'Basic ' + headerData
-	          }
-	        });
-	      },
-	      register: function(data) {
-	        var toSend = {
-	          authentication: {
-	            email: data.email,
-	            password: data.password
-	          }
-	        };
-
-	        return $http({
-	          method: 'POST',
-	          url: 'auth/register',
-	          data: toSend
-	        });
-	      }
-	    }
-	  })
-	  // Attaches token to evey request
-	  .factory('authInterceptor', function($rootScope, $q, $window) {
-	    return {
-	      request: function(req) {
-	        req.headers = req.headers || {};
-	        if ($window.sessionStorage.token) {
-	          // retrieve token from session storage if it exists; store in config object
-	          req.headers.token = $window.sessionStorage.token;
-	        }
-	        return req;
-	      },
-	      response: function(response) {
-	        if (response.status === 401) {
-	          // handle the case where the user is not authenticated
-	        }
-	        return response || $q.when(response);
-	      }
-	    };
-	  })
-
-
-/***/ },
-/* 78 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Mapbox Directive
-	const _ = __webpack_require__(5);
+	const _ = __webpack_require__(3);
 
 	module.exports = function(app) {
 	  app.directive('mapbox', ['EE',
@@ -49666,6 +48533,203 @@
 	      };
 	    }
 	  ]);
+	}
+
+/***/ },
+/* 76 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function(app) {
+		__webpack_require__(77)(app);
+		__webpack_require__(78)(app);
+		__webpack_require__(79)(app);
+		__webpack_require__(80)(app);
+		__webpack_require__(81)(app);
+		__webpack_require__(82)(app);
+	}
+
+/***/ },
+/* 77 */
+/***/ function(module, exports) {
+
+	// Attaches token to evey request
+	module.exports = function(app) {
+	  app.factory('authInterceptor', ['$rootScope', '$q', '$window',
+	    function($rootScope, $q, $window) {
+	      return {
+	        request: function(req) {
+	          req.headers = req.headers || {};
+	          if ($window.sessionStorage.token) {
+	            // retrieve token from session storage if it exists; store in config object
+	            req.headers.token = $window.sessionStorage.token;
+	          }
+	          return req;
+	        },
+	        response: function(response) {
+	          if (response.status === 401) {
+	            // handle the case where the user is not authenticated
+	          }
+	          return response || $q.when(response);
+	        }
+	      };
+	    }
+	  ]);
+	}
+
+/***/ },
+/* 78 */
+/***/ function(module, exports) {
+
+	// Handles Token Retrevial and Creation
+	module.exports = function(app) {
+	  app.factory('AuthFactory', ['$http',
+	    function($http) {
+	      return {
+	        login: function(data) {
+
+	          var headerData = data.email + ':' + data.password;
+	          var headerData = btoa(headerData);
+
+	          return $http({
+	            method: 'GET',
+	            url: '/auth/login',
+	            headers: {
+	              authorization: 'Basic ' + headerData
+	            }
+	          });
+	        },
+	        register: function(data) {
+	          var toSend = {
+	            authentication: {
+	              email: data.email,
+	              password: data.password
+	            }
+	          };
+
+	          return $http({
+	            method: 'POST',
+	            url: 'auth/register',
+	            data: toSend
+	          });
+	        }
+	      }
+	    }
+	  ]);
+	}
+
+/***/ },
+/* 79 */
+/***/ function(module, exports) {
+
+	// Handles Comment Crud
+	module.exports = function(app) {
+	  app.factory('Comment', ['$http',
+	    function($http) {
+	      return {
+	        baseUrl: '/comments',
+	        getComments: function(pinId) {
+	          return $http.get(this.baseUrl + '/' + pinId);
+	        },
+	        postComment: function(newComment, pinId) {
+	          return $http.post(this.baseUrl + '/' + pinId + '/new', newComment);
+	        }
+	      }
+	    }
+	  ]);
+	}
+
+/***/ },
+/* 80 */
+/***/ function(module, exports) {
+
+	// Event Emitter
+	module.exports = function(app) {
+	  app.factory('EE', ['$rootScope',
+	    function($rootScope) {
+	      return {
+	        emit: function(event, data) {
+	          $rootScope.$broadcast(event, data);
+	        }
+	      }
+	    }
+	  ]);
+	}
+
+/***/ },
+/* 81 */
+/***/ function(module, exports) {
+
+	// Handles Pin CRUD
+	module.exports = function(app) {
+	  app.factory('Pin', ['$http',
+	    function($http) {
+	      return {
+	        loadUserPins: function() {
+	          return $http.get('/pins/all');
+	        },
+	        createPin: function(pinData) {
+	          return $http.post('/pins/new', pinData);
+	        },
+	        deletePin: function(pinId) {
+	          return $http.delete('/pins/' + pinId + '/delete');
+	        }
+	      }
+	    }
+	  ]);
+	}
+
+/***/ },
+/* 82 */
+/***/ function(module, exports) {
+
+	// Handles search End Point
+	module.exports = function(app) {
+	  app.factory('Search', ['$http',
+	    function($http) {
+	      return {
+	        baseUrl: '/pins/search',
+	        query: function(query) {
+	          return $http.get(this.baseUrl + '/' + query);
+	        }
+	      }
+	    }
+	  ]);
+	}
+
+/***/ },
+/* 83 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function(app) {
+		__webpack_require__(84)(app);
+	}
+
+/***/ },
+/* 84 */
+/***/ function(module, exports) {
+
+	module.exports = function(app) {
+		app.directive('pinDetail', function() {
+			return {
+				restrict: 'AEC',
+				replace: true,
+				templateUrl: 'templates/detail.html',
+				scope: {
+					activePin: '=',
+					show: '='
+				},
+				link: function(scope, elems, attr){
+					scope.$watch(function() {
+						return scope.activePin;
+					}, function() {
+						console.log(scope.activePin);
+					});
+				},
+				controller: function($scope) {
+					console.log($scope.show);
+				}
+			}
+		});
 	}
 
 /***/ }

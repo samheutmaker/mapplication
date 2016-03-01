@@ -23,7 +23,7 @@
 						<li data-ng-click="actions.searching = !actions.searching"><i class="fa fa-search fa-3x"></i></li>
 					</ul>
 				</section>
-				
+				<!-- Search Menu -->
 				<section class="search-menu" data-ng-show="actions.searching">
 					<form class="search-form" ng-keyup="searchFor(search)">
 						<input class="input" ng-model="search">
@@ -41,25 +41,9 @@
 						</fieldset>
 					</form>
 				</section>
-				<!-- Pin Detail -->
-				<section class="pin-detail-container ng-trans ng-trans-slide-left" data-ng-show="actions.detail">
-					<h2>{{activePin.name}}</h2>
-					{{activePin.content}}<br />
-					<!-- Comments -->
-					<div class="comments-container">
-						<section class="comment" data-ng-repeat="comment in comments">
-							{{comment.content}}
-						</section>
-					</div>
-					<section class="new-comment">
-						<form data-ng-submit="postComment(newComment, activePin._id); newComment = {};" class="pure-form pure-form-stacked">
-							<input class="input" data-ng-model="newComment.content"/>
-							<input type="submit" />
-						</form>
-					</section>
-				</section>
+				<pin-detail data-active-pin="activePin" data-show="actions.detail"></pin-detail>
 				<!-- PIN ITEMS -->
-				<section>
+				<section class="pin-container">
 					<div
 						class="pin-item ng-trans ng-trans-slide-left"
 						data-ng-repeat="pin in allPins | orderBy: '-postedOn'"
@@ -79,6 +63,6 @@
 				<mapbox></mapbox>
 			</section>
 		</div>
-		<ng-include src="'components/auth.html'"></ng-include>
+		<ng-include src="'templates/auth.html'"></ng-include>
 	</body>
 </html>
