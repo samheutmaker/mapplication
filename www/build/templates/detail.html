@@ -1,0 +1,16 @@
+<section class="pin-detail-container ng-trans ng-trans-slide-left" data-ng-show="show">
+	<h2>{{activePin.name}}</h2>
+	{{activePin.content}}<br />
+	<!-- Comments -->
+	<div class="comments-container">
+		<section class="comment" data-ng-repeat="comment in activePin.comments">
+			{{comment.content}}
+		</section>
+	</div>
+	<section class="new-comment">
+		<form data-ng-submit="postComment(newComment, activePin._id); newComment = {};" class="pure-form pure-form-stacked">
+			<input class="input" data-ng-model="newComment.content"/>
+			<input type="submit" />
+		</form>
+	</section>
+</section>

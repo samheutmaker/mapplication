@@ -1,18 +1,15 @@
 const angular = require('angular');
-require('angular-route');
 
 
 // Create App
-const mapplication = angular.module('mapplication', ['Factory',
-  'ngRoute'
-]);
-
+const mapplication = angular.module('mapplication', []);
 // Require Modules
 const _ = require('staff');
 require('leaflet');
 require('mapbox');
-require('./factory');
 require('./map')(mapplication);
+require('./services')(mapplication);
+require('./directives')(mapplication);
 
 
 
@@ -113,8 +110,6 @@ mapplication
     $scope.searchPins = [];
     // Currently active pin
     $scope.activePin = {};
-    // Active Pin Comments
-    $scope.comments = {};
     // Empty Map Object
     $scope.map = null;
     // Hide Controls
@@ -178,16 +173,14 @@ mapplication
 
     // Marker Clicked EE
     $scope.$on('MARKER_CLICKED', function(event, id) {
+      console.log(id);
       $scope.showDetail(id);
     });
 
 
     // Show marker detail by id
     $scope.showDetail = function(pinId) {
-      // $scope.comments = [{
-      //   content : 'Sam'
-      // }];
-      $scope.getComments(pinId);
+      console.log(pinId);
       $scope.activePin = {};
       $scope.activePin = $scope.allPins.filter(function(pin) {
         return pin._id === pinId; // Filter out the appropriate one
@@ -196,24 +189,6 @@ mapplication
       $scope.actions.detail = true;
       $scope.stopPinning(false);
     };
-
-    // Get all comments for a post
-    $scope.getComments = function(pinId) {
-      $scope.comments = [];
-      Comment.getComments(pinId).then(function(res) {
-        $scope.comments = res.data
-      });
-    };
-
-    // Post new comment
-    $scope.postComment = function(newComment, pinId) {
-      if (newComment.content.length > 7) {
-        Comment.postComment(newComment, pinId).then(function(res) {
-          if ($scope.comments)
-            $scope.comments.push(res.data);
-        });
-      }
-    }
 
 
     // Get all users marker and place on map
