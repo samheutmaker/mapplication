@@ -1,14 +1,12 @@
 const angular = require('angular');
 
 
-
 // Create App
 const mapplication = angular.module('mapplication', []);
 // Require Modules
 const _ = require('staff');
 require('leaflet');
 require('mapbox');
-require('socket.io');
 require('./map')(mapplication);
 require('./services')(mapplication);
 require('./directives')(mapplication);

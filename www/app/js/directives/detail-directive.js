@@ -12,22 +12,35 @@ module.exports = function(app) {
         $scope.$watch(function() {
           return $scope.activePin
         }, function() {
-        	$scope.getComments($scope.activePin._id);
+          $scope.getComments($scope.activePin._id);
         });
       },
       controller: function($scope, Comment, SocketIO) {
-        // Post new commen
+        // // Post new comment
+        // $scope.postComment = function(newComment, pinId) {
+        //   if (newComment.content.length > 7) {
+        //     Comment.postComment(newComment, pinId).then(function(res) {
+        //       if ($scope.activePin.comments)
+        //         $scope.activePin.comments.push(res.data);
+        //     });
+        //   }
+        // }
+
+        // Emit new comment event
         $scope.postComment = function(newComment, pinId) {
-          if (newComment.content.length > 7) {
-            Comment.postComment(newComment, pinId).then(function(res) {
-              if ($scope.activePin.comments)
-                $scope.activePin.comments.push(res.data);
-            });
-          }
+          SocketIO.emit('POST_NEW_COMMENT', newComment);
         }
 
-        $scope.printActiveId = function() {
-        	console.log($scope.activePin._id);
+        // Get new comment events from server
+        SocketIO.on('PUSH_NEW_COMMENT', function(data) {
+          if (data.pin_id && data.owner_id && data.content) {
+            $scope.activePin.comments.push(data);
+          }
+        });
+
+        // Leave Room
+        $scope.leaveRoom = function(pinId) {
+          SocketIO.emit('LEAVE_ROOM', pinId);
         };
 
         // Get all comments for a post
@@ -41,12 +54,8 @@ module.exports = function(app) {
 
         // Remove comment from DB
         $scope.removeComment = function(comment) {
-          $scope.
-          Comment.removeComment(comment._id).then(function(res) {
-
-          })
+          Comment.removeComment(comment._id).then(function(res) {})
         }
-
       }
     }
   });

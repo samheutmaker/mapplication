@@ -26,6 +26,6 @@ io.sockets.on('connection', commentSocket);
 // Serve static files
 app.use(express.static(__dirname + '/www/build'));
 // Deploy server
-app.listen(8888, () => {
+http.listen(8888, () => {
   console.log('Server up on port' + 8888);
 });

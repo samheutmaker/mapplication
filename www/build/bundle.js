@@ -47,7 +47,6 @@
 	const angular = __webpack_require__(1);
 
 
-
 	// Create App
 	const mapplication = angular.module('mapplication', []);
 	// Require Modules
@@ -48682,35 +48681,38 @@
 /***/ function(module, exports) {
 
 	module.exports = function(app) {
-		app.factory('SocketIO', ['$rootScope', 
-			function($rootScope) {
-				var socket = io.connect();
-				return {
-					// Subscribe to an event
-					on: function(eventName, callback) {
-						console.log(socket);
-						socket.on(eventName, function(){
-							// Set args
-							var args = arguments;
-							// Force Dom Update
-							$rootScope.$apply(function() {
-								callback.apply(socket, args);
-							});
-						})
-					},
-					// Emit an event
-					emit: function(eventName, data, callback) {
-						socket.emit(eventName, data, function() {
-							var args = arguments;
-							$rootScope.$apply(function() {
-								if(callback) {
-									callback.apply(socket, args);
-								}
-							});
-						});
-					}
-				}
-		}]);
+	  app.factory('SocketIO', ['$rootScope', '$window',
+	    function($rootScope, $window) {
+	      var socket = io.connect();
+	      return {
+	        // Subscribe to an event
+	        on: function(eventName, callback) {
+	          socket.on(eventName, function() {
+	            // Set args
+	            var args = arguments;
+	            // Force Dom Update
+	            $rootScope.$apply(function() {
+	              callback.apply(socket, args);
+	            });
+	          })
+	        },
+	        // Emit an event
+	        emit: function(eventName, data, callback) {
+	          if ($window.sessionStorage.token && data) {
+	            data.token = $window.sessionStorage.token;
+	          }
+	          socket.emit(eventName, data, function() {
+	            var args = arguments;
+	            $rootScope.$apply(function() {
+	              if (callback) {
+	                callback.apply(socket, args);
+	              }
+	            });
+	          });
+	        }
+	      }
+	    }
+	  ]);
 	}
 
 /***/ },
@@ -48743,19 +48745,26 @@
 	        });
 	      },
 	      controller: function($scope, Comment, SocketIO) {
-	        // Post new commen
+	        // // Post new comment
+	        // $scope.postComment = function(newComment, pinId) {
+	        //   if (newComment.content.length > 7) {
+	        //     Comment.postComment(newComment, pinId).then(function(res) {
+	        //       if ($scope.activePin.comments)
+	        //         $scope.activePin.comments.push(res.data);
+	        //     });
+	        //   }
+	        // }
+
 	        $scope.postComment = function(newComment, pinId) {
-	          if (newComment.content.length > 7) {
-	            Comment.postComment(newComment, pinId).then(function(res) {
-	              if ($scope.activePin.comments)
-	                $scope.activePin.comments.push(res.data);
-	            });
-	          }
+	          SocketIO.emit('POST_NEW_COMMENT', newComment);
 	        }
 
-	        $scope.printActiveId = function() {
-	        	console.log($scope.activePin._id);
-	        };
+	        
+	        SocketIO.on('PUSH_NEW_COMMENT', function(data) {
+	          if(data.pin_id && data.owner_id && data.content) {
+	            $scope.activePin.comments.push(data);
+	          }
+	        });
 
 	        // Get all comments for a post
 	        $scope.getComments = function(pinId) {
