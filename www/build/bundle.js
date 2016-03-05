@@ -47,6 +47,7 @@
 	const angular = __webpack_require__(1);
 
 
+
 	// Create App
 	const mapplication = angular.module('mapplication', []);
 	// Require Modules
@@ -55,7 +56,7 @@
 	__webpack_require__(5);
 	__webpack_require__(75)(mapplication);
 	__webpack_require__(76)(mapplication);
-	__webpack_require__(83)(mapplication);
+	__webpack_require__(84)(mapplication);
 
 
 
@@ -219,14 +220,15 @@
 
 	    // Marker Clicked EE
 	    $scope.$on('MARKER_CLICKED', function(event, id) {
-	      console.log(id);
-	      $scope.showDetail(id);
+	      // Force Dom Redraw
+	      $scope.$apply(function() {
+	        $scope.showDetail(id);  
+	      });
 	    });
 
 
 	    // Show marker detail by id
 	    $scope.showDetail = function(pinId) {
-	      console.log(pinId);
 	      $scope.activePin = {};
 	      $scope.activePin = $scope.allPins.filter(function(pin) {
 	        return pin._id === pinId; // Filter out the appropriate one
@@ -48524,6 +48526,7 @@
 		__webpack_require__(80)(app);
 		__webpack_require__(81)(app);
 		__webpack_require__(82)(app);
+		__webpack_require__(83)(app);
 	}
 
 /***/ },
@@ -48676,14 +48679,50 @@
 
 /***/ },
 /* 83 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = function(app) {
-		__webpack_require__(84)(app);
+		app.factory('SocketIO', ['$rootScope', 
+			function($rootScope) {
+				var socket = io.connect();
+				return {
+					// Subscribe to an event
+					on: function(eventName, callback) {
+						console.log(socket);
+						socket.on(eventName, function(){
+							// Set args
+							var args = arguments;
+							// Force Dom Update
+							$rootScope.$apply(function() {
+								callback.apply(socket, args);
+							});
+						})
+					},
+					// Emit an event
+					emit: function(eventName, data, callback) {
+						socket.emit(eventName, data, function() {
+							var args = arguments;
+							$rootScope.$apply(function() {
+								if(callback) {
+									callback.apply(socket, args);
+								}
+							});
+						});
+					}
+				}
+		}]);
 	}
 
 /***/ },
 /* 84 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function(app) {
+		__webpack_require__(85)(app);
+	}
+
+/***/ },
+/* 85 */
 /***/ function(module, exports) {
 
 	module.exports = function(app) {
@@ -48701,12 +48740,10 @@
 	          return $scope.activePin
 	        }, function() {
 	        	$scope.getComments($scope.activePin._id);
-	        })
-
+	        });
 	      },
-	      controller: function($scope, Comment) {
-
-	        // Post new comment
+	      controller: function($scope, Comment, SocketIO) {
+	        // Post new commen
 	        $scope.postComment = function(newComment, pinId) {
 	          if (newComment.content.length > 7) {
 	            Comment.postComment(newComment, pinId).then(function(res) {
@@ -48716,8 +48753,13 @@
 	          }
 	        }
 
+	        $scope.printActiveId = function() {
+	        	console.log($scope.activePin._id);
+	        };
+
 	        // Get all comments for a post
 	        $scope.getComments = function(pinId) {
+	          SocketIO.emit('JOIN_ROOM', pinId);
 	          $scope.activePin.comments = [];
 	          Comment.getComments(pinId).then(function(res) {
 	            $scope.activePin.comments = res.data

@@ -15,8 +15,8 @@ module.exports = function(app) {
         	$scope.getComments($scope.activePin._id);
         });
       },
-      controller: function($scope, Comment) {
-        // Post new comment
+      controller: function($scope, Comment, SocketIO) {
+        // Post new commen
         $scope.postComment = function(newComment, pinId) {
           if (newComment.content.length > 7) {
             Comment.postComment(newComment, pinId).then(function(res) {
@@ -25,8 +25,14 @@ module.exports = function(app) {
             });
           }
         }
+
+        $scope.printActiveId = function() {
+        	console.log($scope.activePin._id);
+        };
+
         // Get all comments for a post
         $scope.getComments = function(pinId) {
+          SocketIO.emit('JOIN_ROOM', pinId);
           $scope.activePin.comments = [];
           Comment.getComments(pinId).then(function(res) {
             $scope.activePin.comments = res.data

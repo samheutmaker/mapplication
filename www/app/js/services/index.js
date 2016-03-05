@@ -5,4 +5,5 @@ module.exports = function(app) {
 	require('./ee-service')(app);
 	require('./pin-service')(app);
 	require('./search-service')(app);
+	require('./socket-io-service')(app);
 }
