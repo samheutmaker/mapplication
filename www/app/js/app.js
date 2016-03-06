@@ -120,6 +120,8 @@ mapplication
     $scope.search = null;
     //Empty pin
     $scope.pinData = {};
+    // Last pin
+    $scope.lastPin = {};
     // Track Actions
     $scope.actions = {
       pinning: false,
@@ -182,6 +184,7 @@ mapplication
 
     // Show marker detail by id
     $scope.showDetail = function(pinId) {
+      $scope.lastPin = $scope.activePin;
       $scope.activePin = {};
       $scope.activePin = $scope.allPins.filter(function(pin) {
         return pin._id === pinId; // Filter out the appropriate one

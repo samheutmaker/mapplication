@@ -27,6 +27,12 @@ module.exports = function(app) {
               }
             });
           });
+        },
+        removeListener: function(eventName, callback) {
+        	callback = (callback) ? callback : function() {};
+        	// Remove listeners
+        	console.log('shou;d remove');
+        	socket.removeListener(eventName, callback);
         }
       }
     }
