@@ -55,7 +55,7 @@
 	__webpack_require__(5);
 	__webpack_require__(75)(mapplication);
 	__webpack_require__(76)(mapplication);
-	__webpack_require__(83)(mapplication);
+	__webpack_require__(84)(mapplication);
 
 
 
@@ -166,6 +166,8 @@
 	    $scope.search = null;
 	    //Empty pin
 	    $scope.pinData = {};
+	    // Last pin
+	    $scope.lastPin = {};
 	    // Track Actions
 	    $scope.actions = {
 	      pinning: false,
@@ -219,14 +221,16 @@
 
 	    // Marker Clicked EE
 	    $scope.$on('MARKER_CLICKED', function(event, id) {
-	      console.log(id);
-	      $scope.showDetail(id);
+	      // Force Dom Redraw
+	      $scope.$apply(function() {
+	        $scope.showDetail(id);  
+	      });
 	    });
 
 
 	    // Show marker detail by id
 	    $scope.showDetail = function(pinId) {
-	      console.log(pinId);
+	      $scope.lastPin = $scope.activePin;
 	      $scope.activePin = {};
 	      $scope.activePin = $scope.allPins.filter(function(pin) {
 	        return pin._id === pinId; // Filter out the appropriate one
@@ -48524,6 +48528,7 @@
 		__webpack_require__(80)(app);
 		__webpack_require__(81)(app);
 		__webpack_require__(82)(app);
+		__webpack_require__(83)(app);
 	}
 
 /***/ },
@@ -48676,14 +48681,59 @@
 
 /***/ },
 /* 83 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = function(app) {
-		__webpack_require__(84)(app);
+	  app.factory('SocketIO', ['$rootScope', '$window',
+	    function($rootScope, $window) {
+	      var socket = io.connect();
+	      return {
+	        // Subscribe to an event
+	        on: function(eventName, callback) {
+	          socket.on(eventName, function() {
+	            // Set args
+	            var args = arguments;
+	            // Force Dom Update
+	            $rootScope.$apply(function() {
+	              callback.apply(socket, args);
+	            });
+	          })
+	        },
+	        // Emit an event
+	        emit: function(eventName, data, callback) {
+	          if ($window.sessionStorage.token && data) {
+	            data.token = $window.sessionStorage.token;
+	          }
+	          socket.emit(eventName, data, function() {
+	            var args = arguments;
+	            $rootScope.$apply(function() {
+	              if (callback) {
+	                callback.apply(socket, args);
+	              }
+	            });
+	          });
+	        },
+	        removeListener: function(eventName, callback) {
+	        	callback = (callback) ? callback : function() {};
+	        	// Remove listeners
+	        	console.log('shou;d remove');
+	        	socket.removeListener(eventName, callback);
+	        }
+	      }
+	    }
+	  ]);
 	}
 
 /***/ },
 /* 84 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function(app) {
+		__webpack_require__(85)(app);
+	}
+
+/***/ },
+/* 85 */
 /***/ function(module, exports) {
 
 	module.exports = function(app) {
@@ -48694,30 +48744,50 @@
 	      templateUrl: 'templates/detail.html',
 	      scope: {
 	        activePin: '=',
+	        lastPin: '=',
 	        show: '='
 	      },
 	      link: function($scope, elems, attr) {
 	        $scope.$watch(function() {
 	          return $scope.activePin
 	        }, function() {
-	        	$scope.getComments($scope.activePin._id);
-	        })
-
+	          $scope.getComments($scope.activePin._id);
+	          
+	        });
 	      },
-	      controller: function($scope, Comment) {
+	      controller: function($scope, Comment, SocketIO) {
 
-	        // Post new comment
+	        // Emit new comment event
 	        $scope.postComment = function(newComment, pinId) {
-	          if (newComment.content.length > 7) {
-	            Comment.postComment(newComment, pinId).then(function(res) {
-	              if ($scope.activePin.comments)
-	                $scope.activePin.comments.push(res.data);
-	            });
-	          }
+	          SocketIO.emit('POST_NEW_COMMENT', newComment);
 	        }
+
+	        // Get new comment events from server
+	        SocketIO.on('PUSH_NEW_COMMENT', function(data) {
+	          if (data.pin_id === $scope.activePin._id && data.owner_id && data.content) {
+
+	            $scope.activePin.comments.push(data);
+	          }
+	        });
+
+	        // Leave Room
+	        $scope.leaveRoom = function(pinId) {
+	          SocketIO.emit('LEAVE_ROOM', pinId);
+	          SocketIO.removeListener('PUSH_NEW_COMMENT', function(data) {
+	            console.log('Removed');
+	            console.log(data);
+	          });
+	        };
 
 	        // Get all comments for a post
 	        $scope.getComments = function(pinId) {
+	          // Leave current room
+	          if($scope.activePin._id){
+	            $scope.leaveRoom($scope.lastPin._id);  
+	          }
+	          // Join new room
+	          SocketIO.emit('JOIN_ROOM', pinId);
+	          // Get and set comments
 	          $scope.activePin.comments = [];
 	          Comment.getComments(pinId).then(function(res) {
 	            $scope.activePin.comments = res.data
@@ -48726,12 +48796,8 @@
 
 	        // Remove comment from DB
 	        $scope.removeComment = function(comment) {
-	          $scope.
-	          Comment.removeComment(comment._id).then(function(res) {
-
-	          })
+	          Comment.removeComment(comment._id).then(function(res) {})
 	        }
-
 	      }
 	    }
 	  });

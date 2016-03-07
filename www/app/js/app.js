@@ -120,6 +120,8 @@ mapplication
     $scope.search = null;
     //Empty pin
     $scope.pinData = {};
+    // Last pin
+    $scope.lastPin = {};
     // Track Actions
     $scope.actions = {
       pinning: false,
@@ -173,14 +175,16 @@ mapplication
 
     // Marker Clicked EE
     $scope.$on('MARKER_CLICKED', function(event, id) {
-      console.log(id);
-      $scope.showDetail(id);
+      // Force Dom Redraw
+      $scope.$apply(function() {
+        $scope.showDetail(id);  
+      });
     });
 
 
     // Show marker detail by id
     $scope.showDetail = function(pinId) {
-      console.log(pinId);
+      $scope.lastPin = $scope.activePin;
       $scope.activePin = {};
       $scope.activePin = $scope.allPins.filter(function(pin) {
         return pin._id === pinId; // Filter out the appropriate one
